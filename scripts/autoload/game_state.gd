@@ -11,7 +11,6 @@ var difficulty: Difficulty = Difficulty.MEDIUM
 var local_player_id: int = 0  # 0=host/X, 1=client/O
 var signaling_url: String = "ws://localhost:8080"
 var active_complications: Array[ComplicationBase] = []
-var available_complication_ids: Array[String] = []
 
 # Pre-game settings
 var start_board_size: int = 3
@@ -28,7 +27,6 @@ var growth_step: int = 0  # Increment increases each grow: +1, +2, +3...
 
 func reset_session() -> void:
 	active_complications.clear()
-	available_complication_ids.clear()
 	scores = [0, 0]
 	draw_count = 0
 	round_number = 0

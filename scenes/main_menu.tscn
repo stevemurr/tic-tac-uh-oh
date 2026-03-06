@@ -298,14 +298,27 @@ custom_minimum_size = Vector2(0, 54)
 toggle_mode = true
 text = "7x7"
 
-[node name="ComplicationToggle" type="CheckButton" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
+[node name="DebugLabel" type="Label" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 48)
-text = "Start with a random complication"
+theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
+theme_override_font_sizes/font_size = 15
+text = "Debug start"
 
-[node name="HintLabel" type="Label" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
+[node name="DebugIntroLabel" type="Label" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
 theme_override_font_sizes/font_size = 15
-text = "Clean openings are slower and more strategic. Starting with a complication gets to the chaos immediately."
+text = "Choose how Local 2 Player or VS AI opens: standard, random, or a specific complication from turn one."
+autowrap_mode = 2
+
+[node name="DebugStartFlow" type="HFlowContainer" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+
+[node name="DebugSummaryLabel" type="Label" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_font_sizes/font_size = 15
+text = "Standard opening. No complication is active at the start."
 autowrap_mode = 2

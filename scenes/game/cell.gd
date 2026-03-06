@@ -8,7 +8,6 @@ var _mark: int = -1  # -1=empty, 0=X, 1=O, 2=wildcard
 var _is_blocked: bool = false
 var _is_wildcard: bool = false
 var _is_bomb: bool = false
-var _base_color: Color = Color.WHITE
 var _mark_alpha: float = 1.0
 var _mark_scale: Vector2 = Vector2.ONE
 var _mark_progress: float = 1.0
@@ -18,7 +17,6 @@ var _mark_progress: float = 1.0
 @onready var surface: ColorRect = $Surface
 @onready var overlay: ColorRect = $Overlay
 @onready var effect_overlay: ColorRect = $EffectOverlay
-@onready var anim_player: AnimationPlayer = $AnimationPlayer
 
 var mark_alpha: float = 1.0:
 	set(value):
@@ -200,17 +198,6 @@ func _set_surface_glow(color: Color, alpha: float) -> void:
 	if surface and surface.material is ShaderMaterial:
 		(surface.material as ShaderMaterial).set_shader_parameter("glow_color", Color(color.r, color.g, color.b, alpha))
 
-func play_place_animation() -> void:
-	if anim_player and anim_player.has_animation("place"):
-		anim_player.play("place")
-
-func play_explode_animation() -> void:
-	if anim_player and anim_player.has_animation("explode"):
-		anim_player.play("explode")
-
-func get_overlay() -> ColorRect:
-	return overlay
-
 func get_effect_overlay() -> ColorRect:
 	return effect_overlay
 
@@ -224,15 +211,6 @@ func clear_shader_material() -> void:
 	if effect_overlay:
 		effect_overlay.material = null
 		effect_overlay.visible = false
-
-func set_overlay_visible(vis: bool) -> void:
-	if effect_overlay:
-		effect_overlay.visible = vis
-
-func set_overlay_color(color: Color) -> void:
-	if effect_overlay:
-		effect_overlay.visible = true
-		effect_overlay.color = color
 
 func get_label() -> Label:
 	return label

@@ -96,7 +96,6 @@ func duplicate_board() -> BoardModel:
 	return copy
 
 func grow(new_size: int) -> void:
-	var old_size := board_size
 	var old_cells := cells.duplicate()
 	var old_blocked := blocked_cells.duplicate()
 	var old_wildcard := wildcard_cells.duplicate()

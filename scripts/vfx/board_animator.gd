@@ -5,8 +5,6 @@ extends Node
 ## Uses snapshot-and-diff pattern: capture state before events, animate deltas after.
 ## In headless mode, all animations are skipped.
 
-signal animation_finished
-
 var board: Control  # Board node
 var _headless: bool = false
 var _bomb_shader: Shader
@@ -141,12 +139,6 @@ func _get_edge_entry_direction(index: int, size: int) -> Vector2:
 	if dir == Vector2.ZERO:
 		return Vector2.UP
 	return dir.normalized()
-
-
-func _get_rotated_index(index: int, size: int) -> int:
-	var row: int = index / size
-	var col: int = index % size
-	return col * size + (size - 1 - row)
 
 
 func _get_support_cells(source_cell: int, player: int, board_model: RefCounted) -> Array[Control]:
@@ -470,85 +462,21 @@ func apply_wildcard_ambient(cell_index: int) -> void:
 
 # --- Complication: Rotating Board ---
 
-func animate_board_rotation(pre_cells: Array[int], board_model: RefCounted) -> void:
-	if _headless or not board or pre_cells.is_empty() or not board_model:
+func animate_board_rotation() -> void:
+	if _headless or not board:
 		return
 	var grid: GridContainer = board.get_grid()
 	if not grid:
 		return
-	var size: int = board.get_current_size()
-	var moving_marks: Array[Dictionary] = []
-	var max_duration := 0.48
-
-	for source_idx in mini(pre_cells.size(), board_model.cell_count):
-		var source_mark: int = pre_cells[source_idx]
-		if source_mark != 0 and source_mark != 1:
-			continue
-
-		var target_idx: int = _get_rotated_index(source_idx, size)
-		if board_model.get_cell(target_idx) != source_mark:
-			continue
-
-		var source_cell: Control = _get_cell(source_idx)
-		var target_cell: Control = _get_cell(target_idx)
-		if not source_cell or not target_cell or not target_cell.has_method("get_mark_layer"):
-			continue
-
-		var mark_layer: Control = target_cell.get_mark_layer()
-		if not mark_layer:
-			continue
-
-		var source_pos: Vector2 = _snapshot_positions.get(source_idx, source_cell.position)
-		var target_pos: Vector2 = _snapshot_positions.get(target_idx, target_cell.position)
-		var offset: Vector2 = source_pos - target_pos
-		var inertia: float = clampf((absf(offset.x) + absf(offset.y)) / maxf(target_cell.custom_minimum_size.x * 2.0, 1.0), 0.0, 1.0)
-		var twist: float = clampf((offset.x - offset.y) / maxf(target_cell.custom_minimum_size.x * 3.0, 1.0), -0.2, 0.2)
-		var travel_delay: float = 0.03 + inertia * 0.04
-		var travel_duration: float = 0.28 + inertia * 0.1
-		var settle_duration: float = 0.12
-		var flash_color := NeonColors.for_player_dim(source_mark, 0.24)
-
-		target_cell.z_index = 14
-		target_cell.mark_alpha = 1.0
-		target_cell.mark_progress = 1.0
-		target_cell.mark_scale = Vector2(0.94, 0.94)
-		mark_layer.position = offset
-		mark_layer.rotation = twist
-		mark_layer.scale = Vector2(0.9, 0.9)
-
-		var tween := target_cell.create_tween()
-		if travel_delay > 0.0:
-			tween.tween_interval(travel_delay)
-		tween.set_parallel(true)
-		tween.tween_property(mark_layer, "position", Vector2.ZERO, travel_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-		tween.tween_property(mark_layer, "rotation", 0.0, travel_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-		tween.tween_property(mark_layer, "scale", Vector2.ONE, travel_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-		tween.tween_property(target_cell, "mark_scale", Vector2(1.08, 1.08), travel_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-		tween.chain().tween_property(target_cell, "mark_scale", Vector2.ONE, settle_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BOUNCE)
-		CellEffects.flash_color(target_cell, flash_color, travel_duration + settle_duration)
-
-		moving_marks.append({"cell": target_cell, "mark_layer": mark_layer})
-		max_duration = maxf(max_duration, travel_delay + travel_duration + settle_duration)
-
 	grid.pivot_offset = grid.size / 2.0
 	var tween := grid.create_tween()
 	tween.set_parallel(true)
-	tween.tween_property(grid, "rotation", deg_to_rad(90.0), 0.46).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE).as_relative()
-	tween.tween_property(grid, "scale", Vector2(1.02, 1.02), 0.18).set_ease(Tween.EASE_OUT)
-	tween.chain().tween_property(grid, "scale", Vector2.ONE, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	await board.get_tree().create_timer(max_duration + 0.02).timeout
+	tween.tween_property(grid, "rotation", deg_to_rad(90.0), 0.42).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE).as_relative()
+	tween.tween_property(grid, "scale", Vector2(1.03, 1.03), 0.16).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_property(grid, "scale", Vector2.ONE, 0.16).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	await tween.finished
 	grid.rotation = 0.0
 	grid.scale = Vector2.ONE
-	for moved in moving_marks:
-		var cell: Control = moved["cell"]
-		var mark_layer: Control = moved["mark_layer"]
-		if not cell or not mark_layer:
-			continue
-		cell.z_index = 0
-		cell.mark_scale = Vector2.ONE
-		mark_layer.position = Vector2.ZERO
-		mark_layer.rotation = 0.0
-		mark_layer.scale = Vector2.ONE
 
 
 func apply_rotation_warning() -> void:
@@ -561,11 +489,6 @@ func apply_rotation_warning() -> void:
 			if eff_overlay:
 				eff_overlay.visible = true
 				eff_overlay.color = Color(NeonColors.WILDCARD.r, NeonColors.WILDCARD.g, NeonColors.WILDCARD.b, 0.1)
-
-
-func clear_rotation_warning() -> void:
-	if _headless or not board:
-		return
 
 
 # --- Complication: Time Pressure ---
@@ -778,7 +701,7 @@ func animate_win_line(winning_cells: Array[int], player: int) -> void:
 
 # --- Spatial Mixup Animations ---
 
-func animate_mixup_rotation(board_model: RefCounted) -> void:
+func animate_mixup_rotation() -> void:
 	if _headless or not board:
 		return
 	var grid: GridContainer = board.get_grid()
@@ -837,7 +760,7 @@ func animate_mixup_shuffle() -> void:
 	await board.get_tree().create_timer(0.3).timeout
 
 
-func animate_mixup_plinko(board_model: RefCounted) -> void:
+func animate_mixup_plinko() -> void:
 	if _headless or not board:
 		return
 	await _animate_snapshot_diff(0.3)
@@ -875,7 +798,7 @@ func animate_mixup_vortex() -> void:
 
 # --- Board Growth Animation ---
 
-func animate_growth(old_size: int, new_size: int) -> void:
+func animate_growth() -> void:
 	if _headless or not board:
 		return
 	for i in board.cells.size():
@@ -886,18 +809,18 @@ func animate_growth(old_size: int, new_size: int) -> void:
 	await board.get_tree().create_timer(0.4).timeout
 
 
-func animate_mixup(mixup_name: String, board_model: RefCounted) -> void:
+func animate_mixup(mixup_name: String) -> void:
 	if _headless:
 		return
 	match mixup_name:
 		"Rotation":
-			await animate_mixup_rotation(board_model)
+			await animate_mixup_rotation()
 		"Earthquake":
 			await animate_mixup_earthquake()
 		"Shuffle":
 			await animate_mixup_shuffle()
 		"Plinko":
-			await animate_mixup_plinko(board_model)
+			await animate_mixup_plinko()
 		"Mirror":
 			await animate_mixup_mirror()
 		"Spiral":

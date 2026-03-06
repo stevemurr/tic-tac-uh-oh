@@ -104,30 +104,13 @@ func set_cells_disabled(disabled: bool) -> void:
 	for cell in cells:
 		cell.disabled = disabled
 
-func play_cell_animation(index: int, anim_name: String) -> void:
-	if index >= 0 and index < cells.size():
-		var cell := cells[index]
-		if anim_name == "place":
-			cell.play_place_animation()
-		elif anim_name == "explode":
-			cell.play_explode_animation()
-
 func get_cell_node(index: int) -> Node:
 	if index >= 0 and index < cells.size():
 		return cells[index]
 	return null
-
-func get_cell_position(index: int) -> Vector2:
-	if index >= 0 and index < cells.size():
-		return cells[index].position
-	return Vector2.ZERO
 
 func get_grid() -> GridContainer:
 	return grid
 
 func get_current_size() -> int:
 	return _current_size
-
-func reset_board() -> void:
-	for cell in cells:
-		cell.reset_cell()

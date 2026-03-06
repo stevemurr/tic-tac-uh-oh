@@ -30,12 +30,6 @@ func _spawn_wildcard(board: BoardModel) -> void:
 	# Place a neutral mark so it's visible
 	board.set_cell(target, 2)  # 2 = wildcard marker
 
-
-func on_check_win(board: BoardModel, checker: WinChecker) -> void:
-	# Win checker already handles wildcards via check_winner_with_wildcards
-	pass
-
-
 func ai_evaluate_modifier(board: BoardModel, player: int) -> float:
 	# Wildcard cells near your marks are good
 	var score := 0.0

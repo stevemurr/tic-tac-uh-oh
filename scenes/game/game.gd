@@ -62,26 +62,6 @@ func _ready() -> void:
 func get_board_model() -> BoardModel:
 	return _board_model
 
-func start_online_game() -> void:
-	# Called from lobby when both players are ready (host only)
-	if not NetworkManager.is_host:
-		return
-
-	var comp_id := ""
-	if GameState.start_with_complication and GameState.active_complications.size() > 0:
-		comp_id = GameState.active_complications[0].complication_id
-
-	NetworkManager.send_game_message({
-		"type": "game_start",
-		"board_size": GameState.start_board_size,
-		"start_with_complication": GameState.start_with_complication,
-		"complication_id": comp_id,
-		"you_are": 1,
-	})
-
-	_start_new_round()
-
-
 func _start_new_round() -> void:
 	_last_timer_tick = 0.0
 	GameState.round_number += 1
@@ -110,8 +90,6 @@ func _start_new_round() -> void:
 	_change_state(State.PLAYER_TURN)
 
 func _grow_board_and_continue() -> void:
-	var old_size := GameState.current_board_size
-
 	# Grow the board
 	var new_size := GameState.get_next_board_size()
 	var new_win_length := GameState.get_next_win_length()
@@ -128,7 +106,7 @@ func _grow_board_and_continue() -> void:
 	board.sync_from_model(_board_model)
 
 	# Animate growth
-	await _animator.animate_growth(old_size, new_size)
+	await _animator.animate_growth()
 
 	# Snapshot before mixup
 	_animator.take_snapshot(_board_model)
@@ -141,7 +119,7 @@ func _grow_board_and_continue() -> void:
 	board.sync_from_model(_board_model)
 
 	# Animate the mixup
-	await _animator.animate_mixup(mixup_name, _board_model)
+	await _animator.animate_mixup(mixup_name)
 
 	# Regenerate win patterns
 	_win_checker.generate_patterns(new_size, new_win_length)
@@ -474,8 +452,6 @@ func _on_enter_checking_result() -> void:
 		if comp.is_active:
 			comp.on_turn_end(player, _board_model, _turn_manager)
 
-	board.sync_from_model(_board_model)
-
 	# Animate turn-end complication effects
 	await _animate_turn_end_effects(sorted_comps, pre_turn_end_cells)
 
@@ -495,7 +471,7 @@ func _animate_turn_end_effects(comps: Array[ComplicationBase], pre_cells: Array[
 						rotated = true
 						break
 				if rotated:
-					await _animator.animate_board_rotation(pre_cells, _board_model)
+					await _animator.animate_board_rotation()
 					board.sync_from_model(_board_model)
 			"aftershock":
 				# Check if mixup happened
