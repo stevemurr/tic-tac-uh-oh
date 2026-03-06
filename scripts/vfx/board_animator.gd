@@ -51,6 +51,10 @@ func take_snapshot(board_model: RefCounted) -> void:
 			_snapshot_positions[i] = board.cells[i].position
 
 
+func was_blocked_in_snapshot(index: int) -> bool:
+	return index >= 0 and index < _snapshot_blocked.size() and _snapshot_blocked[index]
+
+
 func _get_cell(index: int) -> Control:
 	if board:
 		return board.get_cell_node(index)
@@ -751,7 +755,9 @@ func animate_mixup_shuffle() -> void:
 
 	await board.get_tree().create_timer(0.1).timeout
 
-	board.sync_from_model(board.get_parent().get_node("BoardAnimator")._get_board_model_from_game())
+	var board_model := _get_board_model_from_game()
+	if board_model:
+		board.sync_from_model(board_model)
 	for idx in marked_cells:
 		var cell := _get_cell(idx)
 		if cell:

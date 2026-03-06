@@ -5,7 +5,6 @@ const BoardTransitionGuardScript = preload("res://scripts/core/board_transition_
 
 enum State {
 	IDLE,
-	RESETTING_BOARD,
 	PLAYER_TURN,
 	ANIMATING_MOVE,
 	CHECKING_RESULT,
@@ -78,17 +77,7 @@ func _start_new_round() -> void:
 	_turn_manager.reset()
 	_run_battle_victory = false
 
-	# Apply complications to new board
-	var sorted_comps: Array[ComplicationBase] = GameState.get_active_complications_sorted()
-	for comp in sorted_comps:
-		comp.on_board_reset(_board_model)
-		comp.on_game_start(_board_model)
-
-	# Grant steals if stolen turn is active
-	for comp in sorted_comps:
-		if comp.complication_id == "stolen_turn":
-			_turn_manager.grant_steal(0)
-			_turn_manager.grant_steal(1)
+	_apply_board_reset_hooks()
 
 	if _run_controller:
 		_run_controller.apply_battle_start(_board_model)
@@ -141,17 +130,7 @@ func _grow_board_and_continue() -> void:
 	# Reset turns but keep marks
 	_turn_manager.reset()
 
-	# Run complication hooks on the grown board
-	var sorted_comps: Array[ComplicationBase] = GameState.get_active_complications_sorted()
-	for comp in sorted_comps:
-		comp.on_board_reset(_board_model)
-		comp.on_game_start(_board_model)
-
-	# Grant steals if stolen turn is active
-	for comp in sorted_comps:
-		if comp.complication_id == "stolen_turn":
-			_turn_manager.grant_steal(0)
-			_turn_manager.grant_steal(1)
+	_apply_board_reset_hooks()
 
 	# Sync again after complication hooks may have changed state
 	board.sync_from_model(_board_model)
@@ -339,13 +318,6 @@ func _animate_complication_effects(cell: int, player: int, comps: Array[Complica
 					await _animator.animate_mirror(cell, mirror_idx, player)
 			"the_bomb":
 				if pre_cells[cell] != -1 or _board_model.bomb_cell != -1:
-					# Check if bomb exploded (bomb was at cell before the move)
-					var bomb_was_here := false
-					for i in pre_cells.size():
-						if i == cell:
-							# The bomb_cell is tracked on the model, check if explosion happened
-							# by looking for cleared surrounding cells
-							pass
 					# Detect explosion: surrounding cells were cleared
 					var surrounding := _board_model.get_surrounding_cells(cell)
 					var any_cleared := false
@@ -366,7 +338,7 @@ func _animate_complication_effects(cell: int, player: int, comps: Array[Complica
 				for i in _board_model.cell_count:
 					if not _board_model.blocked_cells[i]:
 						continue
-					if i < pre_cells.size() and not _animator._snapshot_blocked[i]:
+					if i < pre_cells.size() and not _animator.was_blocked_in_snapshot(i):
 						await _animator.animate_shrink(i)
 			"chain_reaction":
 				# Detect removed cells
@@ -602,6 +574,21 @@ func _request_ai_move() -> void:
 	var best_move := _minimax.get_best_move(_board_model, player)
 	if best_move >= 0:
 		_execute_move(best_move, player)
+
+func _apply_board_reset_hooks() -> void:
+	var sorted_comps: Array[ComplicationBase] = GameState.get_active_complications_sorted()
+	for comp in sorted_comps:
+		comp.on_board_reset(_board_model)
+		comp.on_game_start(_board_model)
+	_apply_stolen_turn_grants(sorted_comps)
+
+
+func _apply_stolen_turn_grants(complications: Array[ComplicationBase]) -> void:
+	for comp in complications:
+		if comp.complication_id == "stolen_turn":
+			_turn_manager.grant_steal(0)
+			_turn_manager.grant_steal(1)
+			return
 
 func _update_hud() -> void:
 	if hud:

@@ -39,18 +39,7 @@ func start_round() -> void:
 	draw_occurred = false
 	move_history.clear()
 
-	# Run complication hooks
-	var sorted = _get_sorted_complications()
-	for comp in sorted:
-		comp.on_board_reset(board)
-	for comp in sorted:
-		comp.on_game_start(board)
-
-	# Grant steals if stolen_turn is active
-	for comp in _complications:
-		if comp.complication_id == "stolen_turn" and comp.is_active:
-			turn_manager.grant_steal(0)
-			turn_manager.grant_steal(1)
+	_apply_round_start_hooks()
 
 
 func add_complication(comp: ComplicationBase) -> void:
@@ -193,20 +182,22 @@ func handle_draw() -> String:
 	# Reset turns but keep marks
 	turn_manager.reset()
 
-	# Run hooks
+	_apply_round_start_hooks()
+
+	return ""
+
+
+func _apply_round_start_hooks() -> void:
 	var sorted = _get_sorted_complications()
 	for comp in sorted:
 		comp.on_board_reset(board)
 	for comp in sorted:
 		comp.on_game_start(board)
-
-	# Grant steals if stolen_turn is active
 	for comp in _complications:
 		if comp.complication_id == "stolen_turn" and comp.is_active:
 			turn_manager.grant_steal(0)
 			turn_manager.grant_steal(1)
-
-	return ""
+			return
 
 
 func play_ai_move(difficulty: MinimaxSolver.Difficulty = MinimaxSolver.Difficulty.HARD) -> String:
