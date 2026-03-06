@@ -1,27 +1,38 @@
-[gd_scene load_steps=5 format=3 uid="uid://cell001"]
+[gd_scene load_steps=8 format=3 uid="uid://cell001"]
 
 [ext_resource type="Script" path="res://scenes/game/cell.gd" id="1"]
 [ext_resource type="Shader" path="res://shaders/neon_outline.gdshader" id="2"]
+[ext_resource type="Shader" path="res://shaders/cell_surface.gdshader" id="3"]
+[ext_resource type="Script" path="res://scenes/game/mark_layer.gd" id="4"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
-bg_color = Color(0.08, 0.08, 0.15, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.0, 0.3, 0.4, 0.5)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_right = 8
-corner_radius_bottom_left = 8
+bg_color = Color(0.08, 0.11, 0.18, 0.98)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.12, 0.45, 0.58, 0.48)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 10
 
 [sub_resource type="ShaderMaterial" id="neon_outline_mat"]
 shader = ExtResource("2")
-shader_parameter/glow_color = Color(0.0, 0.4, 0.5, 0.3)
-shader_parameter/brightness = 0.3
+shader_parameter/glow_color = Color(0.08, 0.48, 0.62, 0.34)
+shader_parameter/brightness = 0.32
 shader_parameter/pulse_speed = 0.0
 shader_parameter/border_width = 3.0
-shader_parameter/glow_spread = 8.0
+shader_parameter/glow_spread = 10.0
+
+[sub_resource type="ShaderMaterial" id="cell_surface_mat"]
+shader = ExtResource("3")
+shader_parameter/base_color = Color(0.08, 0.11, 0.18, 0.98)
+shader_parameter/glow_color = Color(0.16, 0.67, 0.83, 0.18)
+shader_parameter/highlight_color = Color(1, 1, 1, 0.12)
+shader_parameter/vignette_strength = 0.42
 
 [node name="Cell" type="TextureButton"]
 custom_minimum_size = Vector2(100, 100)
@@ -39,6 +50,17 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 
+[node name="Surface" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+material = SubResource("cell_surface_mat")
+color = Color(1, 1, 1, 1)
+
 [node name="Label" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 15
@@ -49,6 +71,16 @@ grow_vertical = 2
 theme_override_font_sizes/font_size = 48
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="MarkLayer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("4")
 
 [node name="Overlay" type="ColorRect" parent="."]
 layout_mode = 1

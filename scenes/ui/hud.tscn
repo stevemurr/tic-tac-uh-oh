@@ -1,6 +1,42 @@
-[gd_scene load_steps=2 format=3 uid="uid://hud001"]
+[gd_scene load_steps=4 format=3 uid="uid://hud001"]
 
 [ext_resource type="Script" path="res://scenes/ui/hud.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="turn_panel"]
+bg_color = Color(0.07, 0.11, 0.18, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.76, 0.95, 0.3)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 18
+content_margin_left = 18.0
+content_margin_top = 16.0
+content_margin_right = 18.0
+content_margin_bottom = 16.0
+
+[sub_resource type="StyleBoxFlat" id="status_panel"]
+bg_color = Color(0.06, 0.09, 0.15, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.22, 0.76, 0.95, 0.24)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.16)
+shadow_size = 14
+content_margin_left = 18.0
+content_margin_top = 16.0
+content_margin_right = 18.0
+content_margin_bottom = 16.0
 
 [node name="HUD" type="Control"]
 layout_mode = 1
@@ -12,53 +48,121 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1")
 
-[node name="TurnLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 10.0
-offset_right = 300.0
-offset_bottom = 45.0
-theme_override_font_sizes/font_size = 24
-text = "Player X's Turn"
+[node name="SafeArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 22
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
 
-[node name="ScoreLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 45.0
-offset_right = 300.0
-offset_bottom = 70.0
-theme_override_font_sizes/font_size = 18
-text = "X: 0  |  O: 0"
+[node name="OverlayStack" type="VBoxContainer" parent="SafeArea"]
+layout_mode = 2
+theme_override_constants/separation = 14
 
-[node name="RoundLabel" type="Label" parent="."]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 75.0
-offset_right = 200.0
-offset_bottom = 95.0
+[node name="TopRow" type="HBoxContainer" parent="SafeArea/OverlayStack"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TurnPanel" type="PanelContainer" parent="SafeArea/OverlayStack/TopRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 132)
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("turn_panel")
+
+[node name="TurnContent" type="VBoxContainer" parent="SafeArea/OverlayStack/TopRow/TurnPanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="TurnCaption" type="Label" parent="SafeArea/OverlayStack/TopRow/TurnPanel/TurnContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_font_sizes/font_size = 14
+text = "CURRENT TURN"
+
+[node name="TurnLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/TurnPanel/TurnContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "Player X"
+
+[node name="RoundLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/TurnPanel/TurnContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
 theme_override_font_sizes/font_size = 16
 text = "Round 1"
 
-[node name="ComplicationBar" type="HBoxContainer" parent="."]
-layout_mode = 0
-offset_left = 20.0
-offset_top = 105.0
-offset_right = 400.0
-offset_bottom = 135.0
+[node name="ScorePanel" type="PanelContainer" parent="SafeArea/OverlayStack/TopRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 132)
+size_flags_horizontal = 2
+theme_override_styles/panel = SubResource("status_panel")
 
-[node name="TimerBar" type="ProgressBar" parent="."]
-visible = false
-layout_mode = 0
-offset_left = 20.0
-offset_top = 140.0
-offset_right = 220.0
-offset_bottom = 160.0
+[node name="ScoreContent" type="VBoxContainer" parent="SafeArea/OverlayStack/TopRow/ScorePanel"]
+layout_mode = 2
+theme_override_constants/separation = 4
 
-[node name="StealLabel" type="Label" parent="."]
-visible = false
-layout_mode = 0
-offset_left = 20.0
-offset_top = 170.0
-offset_right = 300.0
-offset_bottom = 190.0
+[node name="ScoreCaption" type="Label" parent="SafeArea/OverlayStack/TopRow/ScorePanel/ScoreContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
 theme_override_font_sizes/font_size = 14
+text = "SCORE"
+
+[node name="ScoreLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/ScorePanel/ScoreContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "X 0  |  O 0"
+
+[node name="BoardInfoLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/ScorePanel/ScoreContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_font_sizes/font_size = 15
+text = "3x3 | 3-in-a-row"
+
+[node name="StatusPanel" type="PanelContainer" parent="SafeArea/OverlayStack"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("status_panel")
+
+[node name="StatusContent" type="VBoxContainer" parent="SafeArea/OverlayStack/StatusPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatusHeader" type="HBoxContainer" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ComplicationTitle" type="Label" parent="SafeArea/OverlayStack/StatusPanel/StatusContent/StatusHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
+theme_override_font_sizes/font_size = 14
+text = "ACTIVE EFFECTS"
+
+[node name="Spacer" type="Control" parent="SafeArea/OverlayStack/StatusPanel/StatusContent/StatusHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="NetworkStatusLabel" type="Label" parent="SafeArea/OverlayStack/StatusPanel/StatusContent/StatusHeader"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.86, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "Connected"
+
+[node name="ComplicationBar" type="HFlowContainer" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]
+layout_mode = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="StealLabel" type="Label" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
+theme_override_font_sizes/font_size = 15
+
+[node name="TimerBar" type="ProgressBar" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]
+visible = false
+layout_mode = 2
+custom_minimum_size = Vector2(0, 18)

@@ -55,10 +55,10 @@ func pick_random(active_ids: Array[String]) -> ComplicationBase:
 
 	# Create a fresh instance so state is clean
 	var picked := available[randi() % available.size()]
-	return _create_fresh(picked.complication_id)
+	return create_fresh(picked.complication_id)
 
 
-func _create_fresh(id: String) -> ComplicationBase:
+func create_fresh(id: String) -> ComplicationBase:
 	match id:
 		"shrinking_board": return ShrinkingBoardComplication.new()
 		"gravity": return GravityComplication.new()

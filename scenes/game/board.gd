@@ -5,19 +5,27 @@ signal cell_pressed(index: int)
 var cells: Array[Node] = []
 var _current_size: int = 3
 
+@onready var frame: Panel = $Frame
+@onready var inner_frame: Panel = $InnerFrame
 @onready var grid: GridContainer = $GridContainer
 
-const BASE_CELL_SIZE := 100.0
-const GRID_SEPARATION := 4
-const MAX_GRID_PX := 312.0  # 3 * 100 + 2 * 4 + padding
+const GRID_SEPARATION := 6.0
+const MIN_GRID_PX := 300.0
+const MAX_GRID_PX := 560.0
+const BOARD_MARGIN_X := 120.0
+const BOARD_MARGIN_Y := 520.0
+const FRAME_PADDING := 34.0
+const INNER_PADDING := 18.0
 
 func _ready() -> void:
+	grid.add_theme_constant_override("h_separation", int(GRID_SEPARATION))
+	grid.add_theme_constant_override("v_separation", int(GRID_SEPARATION))
+	resized.connect(_refresh_layout)
 	_setup_cells(3)
 
 func _setup_cells(size: int) -> void:
 	_current_size = size
 
-	# Clear existing cells
 	for cell in cells:
 		cell.queue_free()
 	cells.clear()
@@ -34,7 +42,9 @@ func _setup_cells(size: int) -> void:
 		grid.add_child(cell)
 		cells.append(cell)
 
-	# Resize grid container to fit
+	_layout_shell(cell_px, size)
+
+func _layout_shell(cell_px: float, size: int) -> void:
 	var total := cell_px * size + GRID_SEPARATION * (size - 1)
 	var half := total / 2.0
 	grid.offset_left = -half
@@ -42,14 +52,42 @@ func _setup_cells(size: int) -> void:
 	grid.offset_right = half
 	grid.offset_bottom = half
 
+	var inner_half := half + INNER_PADDING
+	inner_frame.offset_left = -inner_half
+	inner_frame.offset_top = -inner_half
+	inner_frame.offset_right = inner_half
+	inner_frame.offset_bottom = inner_half
+
+	var frame_half := half + FRAME_PADDING
+	frame.offset_left = -frame_half
+	frame.offset_top = -frame_half
+	frame.offset_right = frame_half
+	frame.offset_bottom = frame_half
+
+func _refresh_layout() -> void:
+	if cells.is_empty():
+		return
+
+	var cell_px := _compute_cell_size(_current_size)
+	for cell in cells:
+		cell.custom_minimum_size = Vector2(cell_px, cell_px)
+		if cell.has_method("update_display"):
+			cell.update_display()
+
+	_layout_shell(cell_px, _current_size)
+
 func rebuild_for_size(size: int) -> void:
 	_setup_cells(size)
 
+func _get_target_grid_px() -> float:
+	var viewport := get_viewport_rect().size
+	var available_width := maxf(viewport.x - BOARD_MARGIN_X, MIN_GRID_PX)
+	var available_height := maxf(viewport.y - BOARD_MARGIN_Y, MIN_GRID_PX)
+	return clampf(minf(available_width, available_height), MIN_GRID_PX, MAX_GRID_PX)
+
 func _compute_cell_size(size: int) -> float:
-	# Scale cells down so the grid fits in MAX_GRID_PX
-	var available := MAX_GRID_PX - GRID_SEPARATION * (size - 1)
-	var cell_px := available / size
-	return maxf(cell_px, 20.0)  # Floor at 20px
+	var available := _get_target_grid_px() - GRID_SEPARATION * (size - 1)
+	return maxf(available / size, 20.0)
 
 func _on_cell_clicked(index: int) -> void:
 	cell_pressed.emit(index)

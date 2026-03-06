@@ -1,17 +1,76 @@
-[gd_scene load_steps=4 format=3 uid="uid://mainmenu001"]
+[gd_scene load_steps=8 format=3 uid="uid://mainmenu001"]
 
 [ext_resource type="Script" path="res://scenes/main_menu.gd" id="1"]
 [ext_resource type="Shader" path="res://shaders/scanline_bg.gdshader" id="2"]
 
 [sub_resource type="ShaderMaterial" id="scanline_mat"]
 shader = ExtResource("2")
-shader_parameter/bg_color = Color(0.05, 0.05, 0.1, 1)
-shader_parameter/grid_color = Color(0.0, 0.3, 0.4, 0.15)
-shader_parameter/grid_spacing = 50.0
+shader_parameter/bg_color = Color(0.03, 0.05, 0.09, 1)
+shader_parameter/grid_color = Color(0.08, 0.42, 0.54, 0.14)
+shader_parameter/grid_spacing = 52.0
 shader_parameter/grid_thickness = 1.0
-shader_parameter/scroll_speed = 10.0
-shader_parameter/scanline_alpha = 0.05
+shader_parameter/scroll_speed = 9.0
+shader_parameter/scanline_alpha = 0.045
 shader_parameter/scanline_spacing = 3.0
+
+[sub_resource type="StyleBoxFlat" id="hero_panel"]
+bg_color = Color(0.06, 0.09, 0.15, 0.94)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.34, 0.86, 1, 0.32)
+corner_radius_top_left = 30
+corner_radius_top_right = 30
+corner_radius_bottom_right = 30
+corner_radius_bottom_left = 30
+shadow_color = Color(0, 0, 0, 0.2)
+shadow_size = 24
+content_margin_left = 28.0
+content_margin_top = 28.0
+content_margin_right = 28.0
+content_margin_bottom = 28.0
+
+[sub_resource type="StyleBoxFlat" id="chip_panel"]
+bg_color = Color(0.1, 0.16, 0.24, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(1, 0.55, 0.18, 0.45)
+corner_radius_top_left = 18
+corner_radius_top_right = 18
+corner_radius_bottom_right = 18
+corner_radius_bottom_left = 18
+content_margin_left = 14.0
+content_margin_top = 8.0
+content_margin_right = 14.0
+content_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxFlat" id="panel_emphasis"]
+bg_color = Color(0.07, 0.1, 0.16, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.16, 0.67, 0.83, 0.24)
+corner_radius_top_left = 24
+corner_radius_top_right = 24
+corner_radius_bottom_right = 24
+corner_radius_bottom_left = 24
+shadow_color = Color(0, 0, 0, 0.18)
+shadow_size = 18
+content_margin_left = 22.0
+content_margin_top = 22.0
+content_margin_right = 22.0
+content_margin_bottom = 22.0
+
+[sub_resource type="StyleBoxFlat" id="decor_panel"]
+bg_color = Color(0.09, 0.19, 0.28, 0.2)
+corner_radius_top_left = 90
+corner_radius_top_right = 90
+corner_radius_bottom_right = 90
+corner_radius_bottom_left = 90
 
 [node name="MainMenu" type="Control"]
 layout_mode = 1
@@ -30,93 +89,223 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 material = SubResource("scanline_mat")
-color = Color(0.05, 0.05, 0.1, 1)
+color = Color(0.03, 0.05, 0.09, 1)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="DecorTop" type="Panel" parent="."]
+layout_mode = 0
+offset_left = 442.0
+offset_top = 84.0
+offset_right = 774.0
+offset_bottom = 416.0
+rotation = 0.261799
+mouse_filter = 2
+theme_override_styles/panel = SubResource("decor_panel")
+
+[node name="DecorBottom" type="Panel" parent="."]
+layout_mode = 0
+offset_left = -118.0
+offset_top = 934.0
+offset_right = 254.0
+offset_bottom = 1306.0
+rotation = -0.314159
+mouse_filter = 2
+theme_override_styles/panel = SubResource("decor_panel")
+
+[node name="ContentMargin" type="MarginContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -150.0
-offset_top = -150.0
-offset_right = 150.0
-offset_bottom = 150.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-alignment = 1
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 40
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin"]
+layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+[node name="HeroPanel" type="PanelContainer" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.95, 0, 1)
-theme_override_font_sizes/font_size = 48
+theme_override_styles/panel = SubResource("hero_panel")
+
+[node name="HeroContent" type="VBoxContainer" parent="ContentMargin/VBoxContainer/HeroPanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="EyebrowLabel" type="Label" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
+theme_override_font_sizes/font_size = 15
+text = "STACKING ARCADE TACTICS"
+
+[node name="TitleLabel" type="Label" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.95, 0.84, 1)
+theme_override_font_sizes/font_size = 58
 text = "TIC-TAC-UH-OH"
+
+[node name="SubtitleLabel" type="Label" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_font_sizes/font_size = 20
+text = "Every draw grows the board, stacks another complication, and pushes the match further off the rails."
+autowrap_mode = 2
+
+[node name="FeatureRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FeatureBoard" type="PanelContainer" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent/FeatureRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("chip_panel")
+
+[node name="Label" type="Label" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent/FeatureRow/FeatureBoard"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Growing boards"
 horizontal_alignment = 1
 
-[node name="LocalButton" type="Button" parent="VBoxContainer"]
+[node name="FeatureChaos" type="PanelContainer" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent/FeatureRow"]
 layout_mode = 2
-custom_minimum_size = Vector2(250, 50)
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("chip_panel")
+
+[node name="Label" type="Label" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent/FeatureRow/FeatureChaos"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "12 complications"
+horizontal_alignment = 1
+
+[node name="FeatureModes" type="PanelContainer" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent/FeatureRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("chip_panel")
+
+[node name="Label" type="Label" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent/FeatureRow/FeatureModes"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "Local, AI, online"
+horizontal_alignment = 1
+
+[node name="ModePanel" type="PanelContainer" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("panel_emphasis")
+
+[node name="ModeContent" type="VBoxContainer" parent="ContentMargin/VBoxContainer/ModePanel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ModeLabel" type="Label" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.86, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "Choose a mode"
+
+[node name="LocalButton" type="Button" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 64)
 text = "Local 2 Player"
 
-[node name="AIButton" type="Button" parent="VBoxContainer"]
+[node name="OnlineButton" type="Button" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent"]
 layout_mode = 2
-custom_minimum_size = Vector2(250, 50)
+custom_minimum_size = Vector2(0, 64)
+text = "Online Play"
+
+[node name="AIButton" type="Button" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 64)
 text = "VS AI"
 
-[node name="DifficultyContainer" type="VBoxContainer" parent="VBoxContainer"]
+[node name="DifficultyContainer" type="VBoxContainer" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent"]
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="DiffLabel" type="Label" parent="VBoxContainer/DifficultyContainer"]
+[node name="DiffLabel" type="Label" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer"]
 layout_mode = 2
-text = "Select Difficulty:"
-horizontal_alignment = 1
+theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
+theme_override_font_sizes/font_size = 15
+text = "Select AI difficulty"
 
-[node name="EasyButton" type="Button" parent="VBoxContainer/DifficultyContainer"]
+[node name="DifficultyButtons" type="HBoxContainer" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer"]
 layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="EasyButton" type="Button" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer/DifficultyButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 54)
 text = "Easy"
 
-[node name="MediumButton" type="Button" parent="VBoxContainer/DifficultyContainer"]
+[node name="MediumButton" type="Button" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer/DifficultyButtons"]
 layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 54)
 text = "Medium"
 
-[node name="HardButton" type="Button" parent="VBoxContainer/DifficultyContainer"]
+[node name="HardButton" type="Button" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer/DifficultyButtons"]
 layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 54)
 text = "Hard"
 
-[node name="SettingsContainer" type="VBoxContainer" parent="VBoxContainer"]
+[node name="SettingsPanel" type="PanelContainer" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("panel_emphasis")
+
+[node name="SettingsContent" type="VBoxContainer" parent="ContentMargin/VBoxContainer/SettingsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="SettingsLabel" type="Label" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.34, 0.86, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "Match setup"
+
+[node name="BoardSizeLabel" type="Label" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Starting board"
+
+[node name="BoardSizeButtons" type="HBoxContainer" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="BoardSizeLabel" type="Label" parent="VBoxContainer/SettingsContainer"]
+[node name="Size3" type="Button" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent/BoardSizeButtons"]
 layout_mode = 2
-text = "Board Size:"
-horizontal_alignment = 1
-
-[node name="BoardSizeButtons" type="HBoxContainer" parent="VBoxContainer/SettingsContainer"]
-layout_mode = 2
-alignment = 1
-theme_override_constants/separation = 10
-
-[node name="Size3" type="Button" parent="VBoxContainer/SettingsContainer/BoardSizeButtons"]
-layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 54)
 toggle_mode = true
 button_pressed = true
-text = "3×3"
+text = "3x3"
 
-[node name="Size5" type="Button" parent="VBoxContainer/SettingsContainer/BoardSizeButtons"]
+[node name="Size5" type="Button" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent/BoardSizeButtons"]
 layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 54)
 toggle_mode = true
-text = "5×5"
+text = "5x5"
 
-[node name="Size7" type="Button" parent="VBoxContainer/SettingsContainer/BoardSizeButtons"]
+[node name="Size7" type="Button" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent/BoardSizeButtons"]
 layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(0, 54)
 toggle_mode = true
-text = "7×7"
+text = "7x7"
 
-[node name="ComplicationToggle" type="CheckButton" parent="VBoxContainer/SettingsContainer"]
+[node name="ComplicationToggle" type="CheckButton" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
 layout_mode = 2
-text = "Start with random complication"
+custom_minimum_size = Vector2(0, 48)
+text = "Start with a random complication"
+
+[node name="HintLabel" type="Label" parent="ContentMargin/VBoxContainer/SettingsPanel/SettingsContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_font_sizes/font_size = 15
+text = "Clean openings are slower and more strategic. Starting with a complication gets to the chaos immediately."
+autowrap_mode = 2

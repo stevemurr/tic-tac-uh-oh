@@ -1,6 +1,20 @@
-[gd_scene load_steps=2 format=3 uid="uid://announce001"]
+[gd_scene load_steps=3 format=3 uid="uid://announce001"]
 
 [ext_resource type="Script" path="res://scenes/ui/complication_announcement.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="announcement_panel"]
+bg_color = Color(0.05, 0.08, 0.14, 0.96)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.3, 0.84, 1, 0.26)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.22)
+shadow_size = 28
 
 [node name="ComplicationAnnouncement" type="Control"]
 layout_mode = 1
@@ -18,38 +32,42 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.7)
+color = Color(0.02, 0.04, 0.08, 0.8)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -80.0
-offset_right = 200.0
-offset_bottom = 80.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-alignment = 1
 
-[node name="TitleLabel" type="Label" parent="VBoxContainer"]
+[node name="AnnouncementCard" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
-text = "NEW COMPLICATION!"
+custom_minimum_size = Vector2(540, 0)
+theme_override_styles/panel = SubResource("announcement_panel")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/AnnouncementCard"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/AnnouncementCard/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
+theme_override_font_sizes/font_size = 16
+text = "NEW COMPLICATION"
 horizontal_alignment = 1
 
-[node name="NameLabel" type="Label" parent="VBoxContainer"]
+[node name="NameLabel" type="Label" parent="CenterContainer/AnnouncementCard/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 36
+theme_override_font_sizes/font_size = 42
 text = "Complication Name"
 horizontal_alignment = 1
 
-[node name="DescLabel" type="Label" parent="VBoxContainer"]
+[node name="DescLabel" type="Label" parent="CenterContainer/AnnouncementCard/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(0.84, 0.89, 0.96, 1)
+theme_override_font_sizes/font_size = 19
 text = "Description goes here"
 horizontal_alignment = 1
 autowrap_mode = 2

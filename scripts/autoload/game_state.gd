@@ -1,13 +1,15 @@
 class_name GameStateClass
 extends Node
 
-enum GameMode { LOCAL_2P, VS_AI }
+enum GameMode { LOCAL_2P, VS_AI, ONLINE }
 enum Difficulty { EASY, MEDIUM, HARD }
 
 const DEFAULT_TURN_TIME: float = 15.0
 
 var game_mode: GameMode = GameMode.LOCAL_2P
 var difficulty: Difficulty = Difficulty.MEDIUM
+var local_player_id: int = 0  # 0=host/X, 1=client/O
+var signaling_url: String = "ws://localhost:8080"
 var active_complications: Array[ComplicationBase] = []
 var available_complication_ids: Array[String] = []
 

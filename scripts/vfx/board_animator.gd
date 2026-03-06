@@ -59,6 +59,112 @@ func _get_cell(index: int) -> Control:
 	return null
 
 
+func _get_grid() -> GridContainer:
+	if board:
+		return board.get_grid()
+	return null
+
+
+func _get_cell_center_in_grid(cell: Control) -> Vector2:
+	var cell_size: Vector2 = cell.size
+	if cell_size == Vector2.ZERO:
+		cell_size = cell.custom_minimum_size
+	return cell.position + cell_size / 2.0
+
+
+func _make_orb_style(color: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(color.r, color.g, color.b, 0.96)
+	style.corner_radius_top_left = 64
+	style.corner_radius_top_right = 64
+	style.corner_radius_bottom_right = 64
+	style.corner_radius_bottom_left = 64
+	style.shadow_color = Color(color.r, color.g, color.b, 0.35)
+	style.shadow_size = 12
+	return style
+
+
+func _emit_energy_orb(source_cell: Control, target_cell: Control, color: Color, duration: float = 0.22, delay: float = 0.0) -> Tween:
+	var grid := _get_grid()
+	if not grid or not source_cell or not target_cell:
+		return null
+
+	var orb := Panel.new()
+	orb.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	orb.size = Vector2(16, 16)
+	orb.pivot_offset = orb.size / 2.0
+	orb.position = _get_cell_center_in_grid(source_cell) - orb.size / 2.0
+	orb.scale = Vector2(0.4, 0.4)
+	orb.modulate.a = 0.0
+	orb.z_index = 25
+	orb.add_theme_stylebox_override("panel", _make_orb_style(color))
+	grid.add_child(orb)
+
+	var target_pos: Vector2 = _get_cell_center_in_grid(target_cell) - orb.size / 2.0
+	var tween := orb.create_tween()
+	if delay > 0.0:
+		tween.tween_interval(delay)
+	tween.set_parallel(true)
+	tween.tween_property(orb, "position", target_pos, duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(orb, "modulate:a", 1.0, duration * 0.18).set_ease(Tween.EASE_OUT)
+	tween.tween_property(orb, "scale", Vector2.ONE, duration * 0.35).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_property(orb, "scale", Vector2(0.2, 0.2), duration * 0.42).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(orb, "modulate:a", 0.0, duration * 0.42).set_ease(Tween.EASE_IN)
+	tween.finished.connect(orb.queue_free)
+	return tween
+
+
+func _get_edge_indices(size: int) -> Array[int]:
+	var indices: Array[int] = []
+	for row in size:
+		for col in size:
+			if row == 0 or row == size - 1 or col == 0 or col == size - 1:
+				indices.append(row * size + col)
+	return indices
+
+
+func _get_edge_entry_direction(index: int, size: int) -> Vector2:
+	var row := index / size
+	var col := index % size
+	var dir := Vector2.ZERO
+	if row == 0:
+		dir.y = -1.0
+	elif row == size - 1:
+		dir.y = 1.0
+	if col == 0:
+		dir.x = -1.0
+	elif col == size - 1:
+		dir.x = 1.0
+	if dir == Vector2.ZERO:
+		var center := float(size - 1) * 0.5
+		dir = Vector2(signf(float(col) - center), signf(float(row) - center))
+	if dir == Vector2.ZERO:
+		return Vector2.UP
+	return dir.normalized()
+
+
+func _get_rotated_index(index: int, size: int) -> int:
+	var row: int = index / size
+	var col: int = index % size
+	return col * size + (size - 1 - row)
+
+
+func _get_support_cells(source_cell: int, player: int, board_model: RefCounted) -> Array[Control]:
+	var support_cells: Array[Control] = []
+	var source := _get_cell(source_cell)
+	if source:
+		support_cells.append(source)
+	if not board_model:
+		return support_cells
+
+	for idx in board_model.get_surrounding_cells(source_cell):
+		if board_model.get_cell(idx) == player:
+			var support := _get_cell(idx)
+			if support:
+				support_cells.append(support)
+	return support_cells
+
+
 # --- Particle helpers ---
 
 func _spawn_particle_at_cell(cell_index: int, scene: PackedScene, color: Color = Color.WHITE) -> void:
@@ -88,7 +194,15 @@ func animate_place(cell_index: int, player: int) -> void:
 	if not cell:
 		return
 	cell.pivot_offset = cell.custom_minimum_size / 2.0
-	var tween := CellEffects.pop_scale(cell, 0.2)
+	cell.mark_alpha = 0.0
+	cell.mark_scale = Vector2(0.72, 0.72)
+	cell.mark_progress = 0.0
+	var tween := cell.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(cell, "mark_alpha", 1.0, 0.12).set_ease(Tween.EASE_OUT)
+	tween.tween_property(cell, "mark_progress", 1.0, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(cell, "mark_scale", Vector2(1.16, 1.16), 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.chain().tween_property(cell, "mark_scale", Vector2.ONE, 0.12).set_ease(Tween.EASE_OUT)
 	var color := NeonColors.for_player_dim(player)
 	CellEffects.flash_color(cell, color, 0.2)
 	# Spawn particle burst
@@ -98,47 +212,107 @@ func animate_place(cell_index: int, player: int) -> void:
 
 # --- Complication: Gravity ---
 
-func animate_gravity(board_model: RefCounted) -> void:
-	if _headless:
+func animate_gravity(board_model: RefCounted, pre_gravity_cells: Array[int]) -> void:
+	if _headless or pre_gravity_cells.is_empty():
 		return
-	var tweens: Array[Tween] = []
+	var moved_cells: Array[Control] = []
+	var max_duration := 0.0
 	var size: int = board_model.board_size
 	for col in size:
+		var source_marks: Array[int] = []
+		var target_marks: Array[int] = []
 		for row in range(size - 1, -1, -1):
 			var idx: int = row * size + col
-			var current_mark: int = board_model.get_cell(idx)
-			if current_mark == -1:
+			if board_model.is_blocked(idx):
 				continue
-			var old_idx := -1
-			for old_row in range(row, -1, -1):
-				var oi: int = old_row * size + col
-				if _snapshot_cells[oi] == current_mark and oi != idx:
-					_snapshot_cells[oi] = -99
-					old_idx = oi
-					break
-			if old_idx >= 0 and _snapshot_positions.has(old_idx):
-				var cell := _get_cell(idx)
-				if cell:
-					var old_pos: Vector2 = _snapshot_positions[old_idx]
-					var new_pos := cell.position
-					cell.position = old_pos
-					var tween := CellEffects.slide_to(cell, new_pos, 0.3)
-					tweens.append(tween)
-	if tweens.size() > 0:
-		await tweens[tweens.size() - 1].finished
+			if idx < pre_gravity_cells.size() and pre_gravity_cells[idx] != -1:
+				source_marks.append(idx)
+			if board_model.get_cell(idx) != -1:
+				target_marks.append(idx)
+
+		var pair_count := mini(source_marks.size(), target_marks.size())
+		for i in pair_count:
+			var source_idx := source_marks[i]
+			var target_idx := target_marks[i]
+			if source_idx == target_idx:
+				continue
+
+			var target_cell := _get_cell(target_idx)
+			if not target_cell or not target_cell.has_method("get_mark_layer"):
+				continue
+			if not _snapshot_positions.has(source_idx) or not _snapshot_positions.has(target_idx):
+				continue
+
+			var mark_layer: Control = target_cell.get_mark_layer()
+			if not mark_layer:
+				continue
+
+			var offset: Vector2 = _snapshot_positions[source_idx] - _snapshot_positions[target_idx]
+			var drop_distance := absf(offset.y)
+			var duration := clampf(drop_distance / maxf(target_cell.custom_minimum_size.y * 5.0, 1.0), 0.18, 0.42)
+			var mark_color := NeonColors.for_player(board_model.get_cell(target_idx))
+
+			target_cell.z_index = 10
+			target_cell.mark_alpha = 1.0
+			target_cell.mark_scale = Vector2(0.96, 1.08)
+			target_cell.mark_progress = 1.0
+			mark_layer.position = offset
+			mark_layer.rotation = clampf(offset.y / 900.0, -0.08, 0.08)
+
+			var tween := target_cell.create_tween()
+			tween.tween_property(mark_layer, "position", Vector2(0, 10), duration).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+			tween.parallel().tween_property(mark_layer, "rotation", 0.0, duration * 0.85).set_ease(Tween.EASE_OUT)
+			tween.parallel().tween_property(target_cell, "mark_scale", Vector2(1.04, 0.9), duration).set_ease(Tween.EASE_IN)
+			tween.tween_property(mark_layer, "position", Vector2.ZERO, 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BOUNCE)
+			tween.parallel().tween_property(target_cell, "mark_scale", Vector2.ONE, 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			CellEffects.flash_color(target_cell, Color(mark_color.r, mark_color.g, mark_color.b, 0.12), duration * 0.75)
+			moved_cells.append(target_cell)
+			max_duration = maxf(max_duration, duration + 0.14)
+
+	if moved_cells.is_empty():
+		return
+
+	await board.get_tree().create_timer(max_duration + 0.02).timeout
+	for cell in moved_cells:
+		cell.z_index = 0
+		cell.mark_scale = Vector2.ONE
+		var mark_layer: Control = cell.get_mark_layer()
+		if mark_layer:
+			mark_layer.position = Vector2.ZERO
+			mark_layer.rotation = 0.0
 
 
 # --- Complication: Mirror Moves ---
 
-func animate_mirror(mirror_cell: int, board_model: RefCounted) -> void:
+func animate_mirror(source_cell: int, mirror_cell: int, player: int) -> void:
 	if _headless:
 		return
 	var cell := _get_cell(mirror_cell)
-	if not cell:
+	var source := _get_cell(source_cell)
+	if not cell or not source or not cell.has_method("get_mark_layer"):
 		return
-	var tween := CellEffects.pulse_glow(cell, Color(NeonColors.ACCENT.r, NeonColors.ACCENT.g, NeonColors.ACCENT.b, 0.4), 0.3, 1)
-	CellEffects.pop_scale(cell, 0.2)
+	var mark_layer: Control = cell.get_mark_layer()
+	if not mark_layer:
+		return
+
+	var offset: Vector2 = source.position - cell.position
+	cell.z_index = 10
+	cell.mark_alpha = 0.0
+	cell.mark_scale = Vector2(0.9, 0.9)
+	cell.mark_progress = 0.0
+	mark_layer.position = offset
+
+	var tween := cell.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(mark_layer, "position", Vector2.ZERO, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(cell, "mark_alpha", 1.0, 0.08).set_ease(Tween.EASE_OUT)
+	tween.tween_property(cell, "mark_progress", 1.0, 0.14).set_ease(Tween.EASE_OUT)
+	tween.tween_property(cell, "mark_scale", Vector2(1.08, 1.08), 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.chain().tween_property(cell, "mark_scale", Vector2.ONE, 0.1).set_ease(Tween.EASE_OUT)
+	CellEffects.pulse_glow(cell, Color(NeonColors.ACCENT.r, NeonColors.ACCENT.g, NeonColors.ACCENT.b, 0.4), 0.22, 1)
 	await tween.finished
+	mark_layer.position = Vector2.ZERO
+	cell.z_index = 0
 
 
 # --- Complication: The Bomb ---
@@ -192,12 +366,43 @@ func clear_bomb_ambient(bomb_index: int) -> void:
 func animate_shrink(blocked_cell: int) -> void:
 	if _headless:
 		return
+	var size: int = board.get_current_size()
+	var pulse_color := Color(0.84, 0.9, 0.96, 0.22)
+	for idx in _get_edge_indices(size):
+		if idx == blocked_cell:
+			continue
+		var edge_cell := _get_cell(idx)
+		if edge_cell:
+			CellEffects.flash_color(edge_cell, pulse_color, 0.12)
+
 	var cell := _get_cell(blocked_cell)
 	if not cell:
 		return
 	cell.pivot_offset = cell.custom_minimum_size / 2.0
-	var tween := CellEffects.flash_color(cell, Color(NeonColors.BOMB.r, NeonColors.BOMB.g, NeonColors.BOMB.b, 0.5), 0.3)
+	var collapse_dir: Vector2 = _get_edge_entry_direction(blocked_cell, size) * 18.0
+	var mark_layer: Control = cell.get_mark_layer()
+	if mark_layer:
+		mark_layer.position = collapse_dir
+		mark_layer.scale = Vector2(1.24, 1.24)
+		mark_layer.modulate.a = 0.0
+
+	var tween := cell.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(cell, "scale", Vector2(1.05, 1.05), 0.08).set_ease(Tween.EASE_OUT)
+	tween.tween_property(cell, "rotation", deg_to_rad(3.0) * signf(collapse_dir.x + collapse_dir.y), 0.08).set_ease(Tween.EASE_OUT)
+	if mark_layer:
+		tween.tween_property(mark_layer, "position", Vector2.ZERO, 0.16).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(mark_layer, "scale", Vector2.ONE, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		tween.tween_property(mark_layer, "modulate:a", 1.0, 0.1).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_property(cell, "scale", Vector2(0.92, 0.92), 0.1).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(cell, "rotation", 0.0, 0.14).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_property(cell, "scale", Vector2.ONE, 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	CellEffects.flash_color(cell, Color(0.84, 0.9, 0.96, 0.48), 0.32)
 	await tween.finished
+	if mark_layer:
+		mark_layer.position = Vector2.ZERO
+		mark_layer.scale = Vector2.ONE
+		mark_layer.modulate.a = 1.0
 
 
 # --- Complication: Stolen Turn ---
@@ -209,8 +414,16 @@ func animate_steal(cell_index: int, new_player: int) -> void:
 	if not cell:
 		return
 	var color := NeonColors.for_player_dim(new_player, 0.5)
-	var tween := CellEffects.color_wave(cell, color, 0.3)
-	CellEffects.pop_scale(cell, 0.2)
+	cell.mark_alpha = 0.0
+	cell.mark_scale = Vector2(0.64, 0.64)
+	cell.mark_progress = 0.0
+	var tween := cell.create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(cell, "mark_alpha", 1.0, 0.1).set_ease(Tween.EASE_OUT)
+	tween.tween_property(cell, "mark_progress", 1.0, 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(cell, "mark_scale", Vector2(1.12, 1.12), 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.chain().tween_property(cell, "mark_scale", Vector2.ONE, 0.1).set_ease(Tween.EASE_OUT)
+	CellEffects.color_wave(cell, color, 0.3)
 	await tween.finished
 
 
@@ -257,17 +470,85 @@ func apply_wildcard_ambient(cell_index: int) -> void:
 
 # --- Complication: Rotating Board ---
 
-func animate_board_rotation() -> void:
-	if _headless or not board:
+func animate_board_rotation(pre_cells: Array[int], board_model: RefCounted) -> void:
+	if _headless or not board or pre_cells.is_empty() or not board_model:
 		return
 	var grid: GridContainer = board.get_grid()
 	if not grid:
 		return
+	var size: int = board.get_current_size()
+	var moving_marks: Array[Dictionary] = []
+	var max_duration := 0.48
+
+	for source_idx in mini(pre_cells.size(), board_model.cell_count):
+		var source_mark: int = pre_cells[source_idx]
+		if source_mark != 0 and source_mark != 1:
+			continue
+
+		var target_idx: int = _get_rotated_index(source_idx, size)
+		if board_model.get_cell(target_idx) != source_mark:
+			continue
+
+		var source_cell: Control = _get_cell(source_idx)
+		var target_cell: Control = _get_cell(target_idx)
+		if not source_cell or not target_cell or not target_cell.has_method("get_mark_layer"):
+			continue
+
+		var mark_layer: Control = target_cell.get_mark_layer()
+		if not mark_layer:
+			continue
+
+		var source_pos: Vector2 = _snapshot_positions.get(source_idx, source_cell.position)
+		var target_pos: Vector2 = _snapshot_positions.get(target_idx, target_cell.position)
+		var offset: Vector2 = source_pos - target_pos
+		var inertia: float = clampf((absf(offset.x) + absf(offset.y)) / maxf(target_cell.custom_minimum_size.x * 2.0, 1.0), 0.0, 1.0)
+		var twist: float = clampf((offset.x - offset.y) / maxf(target_cell.custom_minimum_size.x * 3.0, 1.0), -0.2, 0.2)
+		var travel_delay: float = 0.03 + inertia * 0.04
+		var travel_duration: float = 0.28 + inertia * 0.1
+		var settle_duration: float = 0.12
+		var flash_color := NeonColors.for_player_dim(source_mark, 0.24)
+
+		target_cell.z_index = 14
+		target_cell.mark_alpha = 1.0
+		target_cell.mark_progress = 1.0
+		target_cell.mark_scale = Vector2(0.94, 0.94)
+		mark_layer.position = offset
+		mark_layer.rotation = twist
+		mark_layer.scale = Vector2(0.9, 0.9)
+
+		var tween := target_cell.create_tween()
+		if travel_delay > 0.0:
+			tween.tween_interval(travel_delay)
+		tween.set_parallel(true)
+		tween.tween_property(mark_layer, "position", Vector2.ZERO, travel_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(mark_layer, "rotation", 0.0, travel_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(mark_layer, "scale", Vector2.ONE, travel_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		tween.tween_property(target_cell, "mark_scale", Vector2(1.08, 1.08), travel_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		tween.chain().tween_property(target_cell, "mark_scale", Vector2.ONE, settle_duration).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BOUNCE)
+		CellEffects.flash_color(target_cell, flash_color, travel_duration + settle_duration)
+
+		moving_marks.append({"cell": target_cell, "mark_layer": mark_layer})
+		max_duration = maxf(max_duration, travel_delay + travel_duration + settle_duration)
+
 	grid.pivot_offset = grid.size / 2.0
 	var tween := grid.create_tween()
-	tween.tween_property(grid, "rotation", deg_to_rad(90.0), 0.5).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE).as_relative()
-	await tween.finished
+	tween.set_parallel(true)
+	tween.tween_property(grid, "rotation", deg_to_rad(90.0), 0.46).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE).as_relative()
+	tween.tween_property(grid, "scale", Vector2(1.02, 1.02), 0.18).set_ease(Tween.EASE_OUT)
+	tween.chain().tween_property(grid, "scale", Vector2.ONE, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	await board.get_tree().create_timer(max_duration + 0.02).timeout
 	grid.rotation = 0.0
+	grid.scale = Vector2.ONE
+	for moved in moving_marks:
+		var cell: Control = moved["cell"]
+		var mark_layer: Control = moved["mark_layer"]
+		if not cell or not mark_layer:
+			continue
+		cell.z_index = 0
+		cell.mark_scale = Vector2.ONE
+		mark_layer.position = Vector2.ZERO
+		mark_layer.rotation = 0.0
+		mark_layer.scale = Vector2.ONE
 
 
 func apply_rotation_warning() -> void:
@@ -329,6 +610,16 @@ func animate_decay_remove(cell_index: int) -> void:
 	if not cell:
 		return
 	cell.pivot_offset = cell.custom_minimum_size / 2.0
+	if cell.get_mark() == 0 or cell.get_mark() == 1:
+		var tween := cell.create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(cell, "mark_scale", Vector2(1.5, 1.5), 0.3).set_ease(Tween.EASE_OUT)
+		tween.tween_property(cell, "mark_alpha", 0.0, 0.3)
+		await tween.finished
+		cell.mark_scale = Vector2.ONE
+		cell.mark_alpha = 1.0
+		return
+
 	var label_node: Label = cell.get_label()
 	if label_node:
 		var tween := cell.create_tween()
@@ -370,42 +661,103 @@ func animate_aftershock_warning() -> void:
 
 # --- Complication: Chain Reaction ---
 
-func animate_chain_reaction(source_cell: int, removed_cells: Array[int]) -> void:
-	if _headless:
+func animate_chain_reaction(source_cell: int, removed_cells: Array[int], player: int, board_model: RefCounted) -> void:
+	if _headless or removed_cells.is_empty():
 		return
-	var source := _get_cell(source_cell)
-	if source:
-		CellEffects.flash_color(source, Color(NeonColors.PLAYER_O.r, NeonColors.PLAYER_O.g, NeonColors.PLAYER_O.b, 0.5), 0.15)
+	var charge_color := Color(1.0, 0.28, 0.58)
+	var support_cells := _get_support_cells(source_cell, player, board_model)
+	for support in support_cells:
+		support.mark_scale = Vector2(1.08, 1.08)
+		var support_tween := support.create_tween()
+		support_tween.tween_property(support, "mark_scale", Vector2.ONE, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		CellEffects.flash_color(support, Color(charge_color.r, charge_color.g, charge_color.b, 0.3), 0.18)
 
-	for i in removed_cells.size():
-		var cell := _get_cell(removed_cells[i])
-		if cell:
-			cell.pivot_offset = cell.custom_minimum_size / 2.0
-			if i > 0:
-				await cell.get_tree().create_timer(0.1).timeout
-			var tween := CellEffects.implode(cell, 0.2)
-			if i == removed_cells.size() - 1:
-				await tween.finished
-				for idx in removed_cells:
-					var c := _get_cell(idx)
-					if c:
-						c.scale = Vector2.ONE
-						c.modulate.a = 1.0
+	var max_duration := 0.0
+	for target_i in removed_cells.size():
+		var cell := _get_cell(removed_cells[target_i])
+		if not cell:
+			continue
+
+		cell.pivot_offset = cell.custom_minimum_size / 2.0
+		var delay := float(target_i) * 0.1
+		for support_i in support_cells.size():
+			_emit_energy_orb(support_cells[support_i], cell, charge_color, 0.18, delay + float(support_i) * 0.04)
+
+		_spawn_particle_at_cell(removed_cells[target_i], _explosion_scene, charge_color)
+		CellEffects.flash_color(cell, Color(charge_color.r, charge_color.g, charge_color.b, 0.62), 0.28)
+
+		var tween := cell.create_tween()
+		if delay > 0.0:
+			tween.tween_interval(delay + 0.06)
+		else:
+			tween.tween_interval(0.06)
+		tween.set_parallel(true)
+		tween.tween_property(cell, "scale", Vector2(1.12, 1.12), 0.08).set_ease(Tween.EASE_OUT)
+		tween.tween_property(cell, "rotation", deg_to_rad(8.0) * (-1.0 if target_i % 2 == 0 else 1.0), 0.08).set_ease(Tween.EASE_OUT)
+		tween.chain().tween_property(cell, "scale", Vector2(0.8, 0.8), 0.08).set_ease(Tween.EASE_IN)
+		tween.parallel().tween_property(cell, "modulate:a", 0.0, 0.12).set_ease(Tween.EASE_IN)
+		tween.chain().tween_property(cell, "scale", Vector2.ONE, 0.12).set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(cell, "modulate:a", 1.0, 0.12).set_ease(Tween.EASE_OUT)
+		tween.parallel().tween_property(cell, "rotation", 0.0, 0.12).set_ease(Tween.EASE_OUT)
+		max_duration = maxf(max_duration, delay + 0.38)
+
+	if max_duration > 0.0:
+		await board.get_tree().create_timer(max_duration + 0.03).timeout
 
 
 # --- Complication: Infection ---
 
 func animate_infection(source_cell: int, target_cells: Array[int], player: int) -> void:
-	if _headless:
+	if _headless or target_cells.is_empty():
 		return
-	var color := NeonColors.for_player_dim(player, 0.5)
-	for target_idx in target_cells:
+	var source := _get_cell(source_cell)
+	var infection_color := Color(0.36, 1.0, 0.48)
+	if source:
+		CellEffects.flash_color(source, Color(infection_color.r, infection_color.g, infection_color.b, 0.26), 0.18)
+		source.mark_scale = Vector2(1.06, 1.06)
+		var source_tween := source.create_tween()
+		source_tween.tween_property(source, "mark_scale", Vector2.ONE, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	var max_duration := 0.0
+	for i in target_cells.size():
+		var target_idx := target_cells[i]
 		var cell := _get_cell(target_idx)
 		if cell:
-			CellEffects.color_wave(cell, color, 0.3)
-			CellEffects.pop_scale(cell, 0.2)
-	if target_cells.size() > 0:
-		await board.get_tree().create_timer(0.3).timeout
+			var delay := float(i) * 0.05
+			if source:
+				_emit_energy_orb(source, cell, infection_color, 0.18, delay)
+
+			cell.z_index = 10
+			cell.mark_alpha = 0.18
+			cell.mark_progress = 0.0
+			cell.mark_scale = Vector2(0.8, 1.18)
+			var mark_layer: Control = cell.get_mark_layer()
+			if mark_layer:
+				mark_layer.position = Vector2(0, -8)
+				mark_layer.rotation = -0.1 if i % 2 == 0 else 0.1
+
+			CellEffects.flash_color(cell, Color(infection_color.r, infection_color.g, infection_color.b, 0.45), 0.3)
+			_spawn_particle_at_cell(target_idx, _sparkle_scene, infection_color)
+
+			var tween := cell.create_tween()
+			if delay > 0.0:
+				tween.tween_interval(delay)
+			tween.set_parallel(true)
+			tween.tween_property(cell, "mark_alpha", 1.0, 0.1).set_ease(Tween.EASE_OUT)
+			tween.tween_property(cell, "mark_progress", 1.0, 0.16).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+			tween.tween_property(cell, "mark_scale", Vector2(1.16, 0.9), 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			if mark_layer:
+				tween.tween_property(mark_layer, "position", Vector2.ZERO, 0.16).set_ease(Tween.EASE_OUT)
+				tween.tween_property(mark_layer, "rotation", 0.0, 0.16).set_ease(Tween.EASE_OUT)
+			tween.chain().tween_property(cell, "mark_scale", Vector2.ONE, 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+			max_duration = maxf(max_duration, delay + 0.3)
+
+	if max_duration > 0.0:
+		await board.get_tree().create_timer(max_duration + 0.03).timeout
+		for target_idx in target_cells:
+			var cell := _get_cell(target_idx)
+			if cell:
+				cell.z_index = 0
 
 
 # --- Win Line Animation ---
