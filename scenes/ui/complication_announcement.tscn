@@ -3,18 +3,22 @@
 [ext_resource type="Script" path="res://scenes/ui/complication_announcement.gd" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="announcement_panel"]
-bg_color = Color(0.05, 0.08, 0.14, 0.96)
+content_margin_left = 28.0
+content_margin_top = 24.0
+content_margin_right = 28.0
+content_margin_bottom = 26.0
+bg_color = Color(0.07, 0.1, 0.17, 0.8)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3, 0.84, 1, 0.26)
-corner_radius_top_left = 28
-corner_radius_top_right = 28
-corner_radius_bottom_right = 28
-corner_radius_bottom_left = 28
-shadow_color = Color(0, 0, 0, 0.22)
-shadow_size = 28
+border_color = Color(0.5, 0.9, 1, 0.36)
+corner_radius_top_left = 32
+corner_radius_top_right = 32
+corner_radius_bottom_right = 32
+corner_radius_bottom_left = 32
+shadow_color = Color(0, 0, 0, 0.28)
+shadow_size = 34
 
 [node name="ComplicationAnnouncement" type="Control"]
 layout_mode = 1
@@ -32,7 +36,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.04, 0.08, 0.8)
+color = Color(0.02, 0.04, 0.08, 0.68)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -44,30 +48,30 @@ grow_vertical = 2
 
 [node name="AnnouncementCard" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(540, 0)
+custom_minimum_size = Vector2(580, 0)
 theme_override_styles/panel = SubResource("announcement_panel")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/AnnouncementCard"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 14
 
 [node name="TitleLabel" type="Label" parent="CenterContainer/AnnouncementCard/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "NEW COMPLICATION"
 horizontal_alignment = 1
 
 [node name="NameLabel" type="Label" parent="CenterContainer/AnnouncementCard/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 42
+theme_override_font_sizes/font_size = 46
 text = "Complication Name"
 horizontal_alignment = 1
 
 [node name="DescLabel" type="Label" parent="CenterContainer/AnnouncementCard/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.84, 0.89, 0.96, 1)
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 18
 text = "Description goes here"
 horizontal_alignment = 1
 autowrap_mode = 2

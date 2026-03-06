@@ -3,18 +3,22 @@
 [ext_resource type="Script" path="res://scenes/ui/game_over.gd" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="game_over_panel"]
-bg_color = Color(0.05, 0.08, 0.14, 0.97)
+content_margin_left = 28.0
+content_margin_top = 24.0
+content_margin_right = 28.0
+content_margin_bottom = 26.0
+bg_color = Color(0.07, 0.1, 0.17, 0.82)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.3, 0.84, 1, 0.22)
-corner_radius_top_left = 30
-corner_radius_top_right = 30
-corner_radius_bottom_right = 30
-corner_radius_bottom_left = 30
-shadow_color = Color(0, 0, 0, 0.24)
-shadow_size = 30
+border_color = Color(0.5, 0.9, 1, 0.34)
+corner_radius_top_left = 34
+corner_radius_top_right = 34
+corner_radius_bottom_right = 34
+corner_radius_bottom_left = 34
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 36
 
 [node name="GameOverScreen" type="Control"]
 layout_mode = 1
@@ -32,7 +36,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.03, 0.06, 0.84)
+color = Color(0.02, 0.03, 0.06, 0.7)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -44,39 +48,40 @@ grow_vertical = 2
 
 [node name="GameOverCard" type="PanelContainer" parent="CenterContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(540, 0)
+custom_minimum_size = Vector2(580, 0)
 theme_override_styles/panel = SubResource("game_over_panel")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer/GameOverCard"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 14
 
 [node name="ResultLabel" type="Label" parent="CenterContainer/GameOverCard/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 48
 text = "WINNER!"
 horizontal_alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="CenterContainer/GameOverCard/VBoxContainer"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_colors/font_color = Color(1, 0.82, 0.63, 1)
+theme_override_font_sizes/font_size = 25
 text = "X 0  |  O 0"
 horizontal_alignment = 1
 
 [node name="StatsLabel" type="Label" parent="CenterContainer/GameOverCard/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 16
 text = "Stats"
 horizontal_alignment = 1
 autowrap_mode = 2
 
 [node name="PlayAgainButton" type="Button" parent="CenterContainer/GameOverCard/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 60)
 text = "Play Again"
 
 [node name="MenuButton" type="Button" parent="CenterContainer/GameOverCard/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 56)
+custom_minimum_size = Vector2(0, 58)
 text = "Main Menu"

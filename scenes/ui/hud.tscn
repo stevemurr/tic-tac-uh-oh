@@ -3,40 +3,40 @@
 [ext_resource type="Script" path="res://scenes/ui/hud.gd" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="turn_panel"]
-bg_color = Color(0.07, 0.11, 0.18, 0.94)
+bg_color = Color(0.08, 0.12, 0.19, 0.76)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.22, 0.76, 0.95, 0.3)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.18)
-shadow_size = 18
-content_margin_left = 18.0
-content_margin_top = 16.0
-content_margin_right = 18.0
-content_margin_bottom = 16.0
+border_color = Color(0.46, 0.9, 1, 0.42)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.24)
+shadow_size = 24
+content_margin_left = 20.0
+content_margin_top = 18.0
+content_margin_right = 20.0
+content_margin_bottom = 18.0
 
 [sub_resource type="StyleBoxFlat" id="status_panel"]
-bg_color = Color(0.06, 0.09, 0.15, 0.9)
+bg_color = Color(0.08, 0.11, 0.18, 0.72)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.22, 0.76, 0.95, 0.24)
-corner_radius_top_left = 24
-corner_radius_top_right = 24
-corner_radius_bottom_right = 24
-corner_radius_bottom_left = 24
-shadow_color = Color(0, 0, 0, 0.16)
-shadow_size = 14
-content_margin_left = 18.0
-content_margin_top = 16.0
-content_margin_right = 18.0
-content_margin_bottom = 16.0
+border_color = Color(0.44, 0.88, 1, 0.32)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+shadow_color = Color(0, 0, 0, 0.22)
+shadow_size = 22
+content_margin_left = 20.0
+content_margin_top = 18.0
+content_margin_right = 20.0
+content_margin_bottom = 18.0
 
 [node name="HUD" type="Control"]
 layout_mode = 1
@@ -62,11 +62,11 @@ theme_override_constants/margin_bottom = 20
 
 [node name="OverlayStack" type="VBoxContainer" parent="SafeArea"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
 [node name="TopRow" type="HBoxContainer" parent="SafeArea/OverlayStack"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 14
 
 [node name="TurnPanel" type="PanelContainer" parent="SafeArea/OverlayStack/TopRow"]
 layout_mode = 2
@@ -81,7 +81,7 @@ theme_override_constants/separation = 4
 [node name="TurnCaption" type="Label" parent="SafeArea/OverlayStack/TopRow/TurnPanel/TurnContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "CURRENT TURN"
 
 [node name="TurnLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/TurnPanel/TurnContent"]
@@ -92,7 +92,7 @@ text = "Player X"
 [node name="RoundLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/TurnPanel/TurnContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "Round 1"
 
 [node name="ScorePanel" type="PanelContainer" parent="SafeArea/OverlayStack/TopRow"]
@@ -108,18 +108,18 @@ theme_override_constants/separation = 4
 [node name="ScoreCaption" type="Label" parent="SafeArea/OverlayStack/TopRow/ScorePanel/ScoreContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "SCORE"
 
 [node name="ScoreLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/ScorePanel/ScoreContent"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 30
 text = "X 0  |  O 0"
 
 [node name="BoardInfoLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/ScorePanel/ScoreContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 16
 text = "3x3 | 3-in-a-row"
 
 [node name="StatusPanel" type="PanelContainer" parent="SafeArea/OverlayStack"]
@@ -128,7 +128,7 @@ theme_override_styles/panel = SubResource("status_panel")
 
 [node name="StatusContent" type="VBoxContainer" parent="SafeArea/OverlayStack/StatusPanel"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 12
 
 [node name="StatusHeader" type="HBoxContainer" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]
 layout_mode = 2
@@ -137,7 +137,7 @@ theme_override_constants/separation = 8
 [node name="ComplicationTitle" type="Label" parent="SafeArea/OverlayStack/StatusPanel/StatusContent/StatusHeader"]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "ACTIVE EFFECTS"
 
 [node name="Spacer" type="Control" parent="SafeArea/OverlayStack/StatusPanel/StatusContent/StatusHeader"]
@@ -148,21 +148,21 @@ size_flags_horizontal = 3
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.34, 0.86, 1, 1)
-theme_override_font_sizes/font_size = 14
+theme_override_font_sizes/font_size = 13
 text = "Connected"
 
 [node name="ComplicationBar" type="HFlowContainer" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]
 layout_mode = 2
-theme_override_constants/h_separation = 8
-theme_override_constants/v_separation = 8
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
 
 [node name="StealLabel" type="Label" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 
 [node name="TimerBar" type="ProgressBar" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]
 visible = false
 layout_mode = 2
-custom_minimum_size = Vector2(0, 18)
+custom_minimum_size = Vector2(0, 20)

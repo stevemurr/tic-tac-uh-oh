@@ -59,10 +59,10 @@ func update_complications(complications: Array[ComplicationBase]) -> void:
 
 func _build_placeholder_chip() -> PanelContainer:
 	var chip := PanelContainer.new()
-	chip.add_theme_stylebox_override("panel", _make_chip_style(NeonColors.DIM_OUTLINE, NeonColors.SURFACE_ALT))
+	chip.add_theme_stylebox_override("panel", _make_chip_style(NeonColors.DIM_OUTLINE, NeonColors.SURFACE_SOFT))
 
 	var label := Label.new()
-	label.text = "No complications yet"
+	label.text = "No complications active"
 	label.add_theme_font_size_override("font_size", 14)
 	label.add_theme_color_override("font_color", NeonColors.TEXT_MUTED)
 	chip.add_child(label)
@@ -77,9 +77,9 @@ func _build_complication_chip(comp: ComplicationBase) -> PanelContainer:
 	row.add_theme_constant_override("separation", 8)
 	chip.add_child(row)
 
-	var dot := ColorRect.new()
-	dot.custom_minimum_size = Vector2(10, 10)
-	dot.color = comp.color
+	var dot := Panel.new()
+	dot.custom_minimum_size = Vector2(12, 12)
+	dot.add_theme_stylebox_override("panel", _make_chip_dot_style(comp.color))
 	row.add_child(dot)
 
 	var label := Label.new()
@@ -109,20 +109,33 @@ func _build_complication_chip(comp: ComplicationBase) -> PanelContainer:
 
 func _make_chip_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = bg_color
-	style.border_color = Color(border_color.r, border_color.g, border_color.b, 0.45)
+	style.bg_color = Color(bg_color.r, bg_color.g, bg_color.b, minf(bg_color.a, 0.7))
+	style.border_color = Color(border_color.r, border_color.g, border_color.b, 0.56)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
-	style.corner_radius_top_left = 14
-	style.corner_radius_top_right = 14
-	style.corner_radius_bottom_right = 14
-	style.corner_radius_bottom_left = 14
-	style.content_margin_left = 12.0
-	style.content_margin_top = 8.0
-	style.content_margin_right = 12.0
-	style.content_margin_bottom = 8.0
+	style.corner_radius_top_left = 16
+	style.corner_radius_top_right = 16
+	style.corner_radius_bottom_right = 16
+	style.corner_radius_bottom_left = 16
+	style.shadow_color = Color(border_color.r, border_color.g, border_color.b, 0.12)
+	style.shadow_size = 12
+	style.content_margin_left = 13.0
+	style.content_margin_top = 9.0
+	style.content_margin_right = 13.0
+	style.content_margin_bottom = 9.0
+	return style
+
+func _make_chip_dot_style(color: Color) -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = color
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_right = 6
+	style.corner_radius_bottom_left = 6
+	style.shadow_color = Color(color.r, color.g, color.b, 0.28)
+	style.shadow_size = 8
 	return style
 
 func update_timer(time_left: float, time_max: float = 15.0) -> void:
