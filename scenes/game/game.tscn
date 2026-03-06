@@ -23,10 +23,17 @@ shader_parameter/beam_width = 0.22
 
 [sub_resource type="StyleBoxFlat" id="decor_panel"]
 bg_color = Color(0.56, 0.43, 0.25, 0.09)
+anti_aliasing = true
+anti_aliasing_size = 2.0
 corner_radius_top_left = 110
 corner_radius_top_right = 110
 corner_radius_bottom_right = 110
 corner_radius_bottom_left = 110
+corner_detail = 24
+expand_margin_left = 1.5
+expand_margin_top = 1.5
+expand_margin_right = 1.5
+expand_margin_bottom = 1.5
 
 [node name="Game" type="Control" unique_id=1562069057]
 layout_mode = 3

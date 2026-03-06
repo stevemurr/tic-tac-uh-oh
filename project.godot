@@ -28,6 +28,7 @@ NetworkManager="*res://scripts/autoload/network_manager.gd"
 window/size/viewport_width=720
 window/size/viewport_height=1280
 window/stretch/mode="canvas_items"
+window/dpi/allow_hidpi=true
 window/handheld/orientation=1
 
 [gui]

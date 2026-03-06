@@ -77,10 +77,17 @@ func _get_cell_center_in_grid(cell: Control) -> Vector2:
 func _make_orb_style(color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(color.r, color.g, color.b, 0.96)
+	style.anti_aliasing = true
+	style.anti_aliasing_size = 1.3
 	style.corner_radius_top_left = 64
 	style.corner_radius_top_right = 64
 	style.corner_radius_bottom_right = 64
 	style.corner_radius_bottom_left = 64
+	style.corner_detail = 20
+	style.expand_margin_left = 1.0
+	style.expand_margin_top = 1.0
+	style.expand_margin_right = 1.0
+	style.expand_margin_bottom = 1.0
 	style.shadow_color = Color(color.r, color.g, color.b, 0.35)
 	style.shadow_size = 12
 	return style

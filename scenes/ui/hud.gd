@@ -110,15 +110,23 @@ func _build_complication_chip(comp: ComplicationBase) -> PanelContainer:
 func _make_chip_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(bg_color.r, bg_color.g, bg_color.b, minf(bg_color.a, 0.78))
+	style.anti_aliasing = true
+	style.anti_aliasing_size = 1.4
 	style.border_color = Color(border_color.r, border_color.g, border_color.b, 0.46)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
 	style.border_width_bottom = 1
+	style.border_blend = true
 	style.corner_radius_top_left = 16
 	style.corner_radius_top_right = 16
 	style.corner_radius_bottom_right = 16
 	style.corner_radius_bottom_left = 16
+	style.corner_detail = 16
+	style.expand_margin_left = 1.0
+	style.expand_margin_top = 1.0
+	style.expand_margin_right = 1.0
+	style.expand_margin_bottom = 1.0
 	style.shadow_color = Color(0, 0, 0, 0.18)
 	style.shadow_size = 14
 	style.content_margin_left = 13.0
@@ -130,10 +138,17 @@ func _make_chip_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
 func _make_chip_dot_style(color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 	style.bg_color = color
+	style.anti_aliasing = true
+	style.anti_aliasing_size = 1.2
 	style.corner_radius_top_left = 6
 	style.corner_radius_top_right = 6
 	style.corner_radius_bottom_right = 6
 	style.corner_radius_bottom_left = 6
+	style.corner_detail = 10
+	style.expand_margin_left = 1.0
+	style.expand_margin_top = 1.0
+	style.expand_margin_right = 1.0
+	style.expand_margin_bottom = 1.0
 	style.shadow_color = Color(color.r, color.g, color.b, 0.28)
 	style.shadow_size = 8
 	return style
