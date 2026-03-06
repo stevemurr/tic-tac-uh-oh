@@ -5,43 +5,43 @@
 
 [sub_resource type="ShaderMaterial" id="scanline_mat"]
 shader = ExtResource("2")
-shader_parameter/bg_color = Color(0.03, 0.05, 0.09, 1)
-shader_parameter/grid_color = Color(0.09, 0.48, 0.59, 0.16)
-shader_parameter/grid_spacing = 50.0
+shader_parameter/bg_color = Color(0.025, 0.03, 0.05, 1)
+shader_parameter/grid_color = Color(0.24, 0.3, 0.36, 0.08)
+shader_parameter/grid_spacing = 72.0
 shader_parameter/grid_thickness = 1.0
-shader_parameter/scroll_speed = 10.0
-shader_parameter/scanline_alpha = 0.05
+shader_parameter/scroll_speed = 4.0
+shader_parameter/scanline_alpha = 0.025
 shader_parameter/scanline_spacing = 3.0
-shader_parameter/glow_color = Color(0.05, 0.52, 0.74, 0.24)
-shader_parameter/beam_color = Color(0.9, 0.96, 1, 0.13)
-shader_parameter/mist_color = Color(0.08, 0.18, 0.28, 0.2)
+shader_parameter/glow_color = Color(0.28, 0.4, 0.46, 0.12)
+shader_parameter/beam_color = Color(0.94, 0.76, 0.5, 0.08)
+shader_parameter/mist_color = Color(0.11, 0.11, 0.12, 0.2)
 shader_parameter/beam_width = 0.22
 
 [sub_resource type="StyleBoxFlat" id="lobby_card"]
-bg_color = Color(0.08, 0.11, 0.18, 0.72)
+bg_color = Color(0.07, 0.08, 0.11, 0.84)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.48, 0.9, 1, 0.34)
+border_color = Color(0.8, 0.71, 0.55, 0.28)
 corner_radius_top_left = 34
 corner_radius_top_right = 34
 corner_radius_bottom_right = 34
 corner_radius_bottom_left = 34
-shadow_color = Color(0, 0, 0, 0.28)
-shadow_size = 30
+shadow_color = Color(0, 0, 0, 0.34)
+shadow_size = 34
 
 [sub_resource type="StyleBoxFlat" id="code_input_normal"]
 content_margin_left = 16.0
 content_margin_top = 12.0
 content_margin_right = 16.0
 content_margin_bottom = 12.0
-bg_color = Color(0.07, 0.1, 0.16, 0.82)
+bg_color = Color(0.07, 0.08, 0.11, 0.84)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.48, 0.88, 1, 0.28)
+border_color = Color(0.68, 0.6, 0.46, 0.26)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
@@ -54,17 +54,17 @@ content_margin_left = 16.0
 content_margin_top = 12.0
 content_margin_right = 16.0
 content_margin_bottom = 12.0
-bg_color = Color(0.11, 0.16, 0.23, 0.94)
+bg_color = Color(0.1, 0.11, 0.15, 0.95)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.64, 0.92, 1, 0.92)
+border_color = Color(0.92, 0.78, 0.58, 0.88)
 corner_radius_top_left = 18
 corner_radius_top_right = 18
 corner_radius_bottom_right = 18
 corner_radius_bottom_left = 18
-shadow_color = Color(0.2, 0.67, 0.84, 0.24)
+shadow_color = Color(0.9, 0.72, 0.44, 0.18)
 shadow_size = 16
 
 [node name="OnlineLobby" type="Control"]
@@ -84,7 +84,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 material = SubResource("scanline_mat")
-color = Color(0.03, 0.05, 0.09, 1)
+color = Color(0.025, 0.03, 0.05, 1)
 
 [node name="LobbyCard" type="Panel" parent="."]
 layout_mode = 1
@@ -119,21 +119,21 @@ theme_override_constants/separation = 18
 
 [node name="TitleLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.93, 0.83, 1)
+theme_override_colors/font_color = Color(0.97, 0.94, 0.88, 1)
 theme_override_font_sizes/font_size = 42
 text = "ONLINE PLAY"
 horizontal_alignment = 1
 
 [node name="StatusLabel" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_colors/font_color = Color(0.7, 0.73, 0.79, 1)
 theme_override_font_sizes/font_size = 16
 text = "Create or join a room"
 horizontal_alignment = 1
 
 [node name="RoomCodeDisplay" type="Label" parent="VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.46, 0.9, 1, 1)
+theme_override_colors/font_color = Color(0.64, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 64
 text = ""
 horizontal_alignment = 1

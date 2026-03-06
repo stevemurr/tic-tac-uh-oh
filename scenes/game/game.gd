@@ -1,5 +1,8 @@
 extends Control
 
+const RunBattleControllerScript = preload("res://scripts/run/run_battle_controller.gd")
+const BoardTransitionGuardScript = preload("res://scripts/core/board_transition_guard.gd")
+
 enum State {
 	IDLE,
 	RESETTING_BOARD,
@@ -19,6 +22,8 @@ var _turn_manager: TurnManager
 var _minimax: MinimaxSolver
 var _timer: Timer
 var _animator: BoardAnimator
+var _run_controller = null
+var _run_battle_victory: bool = false
 
 @onready var board: Control = $Board
 @onready var hud: Control = $CanvasLayer/HUD
@@ -26,6 +31,10 @@ var _animator: BoardAnimator
 @onready var game_over_screen: Control = $CanvasLayer/GameOverScreen
 
 func _ready() -> void:
+	if _is_run_mode():
+		_run_controller = RunBattleControllerScript.new()
+		_run_controller.configure_game_state()
+
 	_board_model = BoardModel.new(GameState.current_board_size)
 	_win_checker = WinChecker.new(GameState.current_board_size, GameState.current_win_length)
 	_move_validator = MoveValidator.new()
@@ -67,6 +76,7 @@ func _start_new_round() -> void:
 	GameState.round_number += 1
 	_board_model.reset()
 	_turn_manager.reset()
+	_run_battle_victory = false
 
 	# Apply complications to new board
 	var sorted_comps: Array[ComplicationBase] = GameState.get_active_complications_sorted()
@@ -79,6 +89,9 @@ func _start_new_round() -> void:
 		if comp.complication_id == "stolen_turn":
 			_turn_manager.grant_steal(0)
 			_turn_manager.grant_steal(1)
+
+	if _run_controller:
+		_run_controller.apply_battle_start(_board_model)
 
 	# Rebuild visual board for current size
 	board.rebuild_for_size(GameState.current_board_size)
@@ -112,7 +125,9 @@ func _grow_board_and_continue() -> void:
 	_animator.take_snapshot(_board_model)
 
 	# Apply spatial mixup
+	_win_checker.generate_patterns(new_size, new_win_length)
 	var mixup_name: String = SpatialMixups.apply_random(_board_model)
+	mixup_name = BoardTransitionGuardScript.stabilize_mixup(_board_model, _win_checker, mixup_name)
 	GameEvents.spatial_mixup_applied.emit(mixup_name)
 
 	# Sync visual state after mixup
@@ -120,9 +135,6 @@ func _grow_board_and_continue() -> void:
 
 	# Animate the mixup
 	await _animator.animate_mixup(mixup_name)
-
-	# Regenerate win patterns
-	_win_checker.generate_patterns(new_size, new_win_length)
 
 	GameEvents.board_grown.emit(new_size, new_win_length)
 
@@ -174,6 +186,8 @@ func _on_enter_player_turn() -> void:
 	for comp in sorted_comps:
 		if comp.is_active:
 			comp.on_turn_start(player, _board_model)
+	if _run_controller:
+		_run_controller.apply_turn_start(player, _board_model)
 
 	board.sync_from_model(_board_model)
 	_update_hud()
@@ -187,7 +201,7 @@ func _on_enter_player_turn() -> void:
 	_start_timer_if_needed(player)
 
 	# If AI's turn
-	if GameState.game_mode == GameState.GameMode.VS_AI and player == 1:
+	if _is_ai_opponent_turn(player):
 		board.set_cells_disabled(true)
 		_request_ai_move()
 	elif _is_online():
@@ -202,7 +216,7 @@ func _on_enter_player_turn() -> void:
 		board.set_cells_disabled(false)
 
 func _start_timer_if_needed(player: int) -> void:
-	if GameState.game_mode == GameState.GameMode.VS_AI and player == 1:
+	if _is_ai_opponent_turn(player):
 		return  # No timer for AI
 
 	# Online client doesn't run its own timer -- host sends timer ticks
@@ -293,6 +307,8 @@ func _execute_move(cell: int, player: int) -> void:
 			if comp.complication_id == "gravity":
 				pre_gravity_cells = _board_model.cells.duplicate()
 			comp.on_move_placed(cell, player, _board_model)
+	if _run_controller:
+		_run_controller.apply_move_placed(cell, player, _board_model)
 
 	board.sync_from_model(_board_model)
 
@@ -542,6 +558,7 @@ func _on_enter_game_over() -> void:
 		winner = 0
 	elif GameState.scores[1] > GameState.scores[0]:
 		winner = 1
+	_run_battle_victory = _is_run_mode() and winner == 0
 
 	if winner >= 0:
 		var winning_cells := _win_checker.get_winning_pattern(_board_model, winner)
@@ -623,6 +640,10 @@ func _process(delta: float) -> void:
 				})
 
 func restart_game() -> void:
+	if _is_run_mode():
+		_continue_run_after_battle()
+		return
+
 	if _is_online() and not NetworkManager.is_host:
 		# Client requests rematch from host
 		NetworkManager.send_game_message({"type": "rematch_request"})
@@ -638,6 +659,8 @@ func restart_game() -> void:
 	_start_new_round()
 
 func return_to_menu() -> void:
+	if _is_run_mode():
+		RunState.reset()
 	if _is_online():
 		NetworkManager.leave()
 	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
@@ -647,6 +670,42 @@ func return_to_menu() -> void:
 
 func _is_online() -> bool:
 	return GameState.game_mode == GameState.GameMode.ONLINE
+
+
+func _is_run_mode() -> bool:
+	return GameState.game_mode == GameState.GameMode.CASTLE_ASCENT
+
+
+func _is_ai_opponent_turn(player: int) -> bool:
+	return player == 1 and (
+		GameState.game_mode == GameState.GameMode.VS_AI
+		or GameState.game_mode == GameState.GameMode.CASTLE_ASCENT
+	)
+
+
+func _continue_run_after_battle() -> void:
+	if _run_controller == null:
+		get_tree().change_scene_to_file("res://scenes/run/castle_map.tscn")
+		return
+
+	var result: Dictionary = _run_controller.build_result_payload(_run_battle_victory)
+	if _run_battle_victory:
+		RunState.apply_battle_win(result)
+		match RunState.run_status:
+			RunState.RunStatus.WON:
+				RunState.reset()
+				get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+			RunState.RunStatus.REWARD:
+				get_tree().change_scene_to_file("res://scenes/run/reward_choice.tscn")
+			_:
+				get_tree().change_scene_to_file("res://scenes/run/castle_map.tscn")
+	else:
+		RunState.apply_battle_loss(result)
+		if RunState.run_status == RunState.RunStatus.LOST:
+			RunState.reset()
+			get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
+		else:
+			get_tree().change_scene_to_file("res://scenes/run/castle_map.tscn")
 
 
 func _send_state_to_client() -> void:

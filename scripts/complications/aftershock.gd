@@ -1,6 +1,8 @@
 class_name AftershockComplication
 extends ComplicationBase
 
+const BoardTransitionGuardScript = preload("res://scripts/core/board_transition_guard.gd")
+
 func _init() -> void:
 	complication_id = "aftershock"
 	display_name = "Aftershock"
@@ -23,7 +25,9 @@ func on_turn_end(_player: int, board: BoardModel, _turns: TurnManager) -> void:
 
 	if _state["turns_since_mixup"] >= 4:
 		_state["turns_since_mixup"] = 0
-		SpatialMixups.apply_random(board)
+		var mixup_name: String = SpatialMixups.apply_random(board)
+		var checker: WinChecker = WinChecker.new(board.board_size, GameState.current_win_length)
+		BoardTransitionGuardScript.stabilize_mixup(board, checker, mixup_name)
 
 
 func ai_evaluate_modifier(board: BoardModel, player: int) -> float:

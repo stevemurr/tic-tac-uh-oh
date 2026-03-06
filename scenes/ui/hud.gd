@@ -70,7 +70,7 @@ func _build_placeholder_chip() -> PanelContainer:
 
 func _build_complication_chip(comp: ComplicationBase) -> PanelContainer:
 	var chip := PanelContainer.new()
-	chip.add_theme_stylebox_override("panel", _make_chip_style(comp.color, Color(0.09, 0.13, 0.21, 0.95)))
+	chip.add_theme_stylebox_override("panel", _make_chip_style(comp.color, NeonColors.SURFACE_ALT))
 	chip.tooltip_text = "%s: %s" % [comp.display_name, comp.description]
 
 	var row := HBoxContainer.new()
@@ -109,8 +109,8 @@ func _build_complication_chip(comp: ComplicationBase) -> PanelContainer:
 
 func _make_chip_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(bg_color.r, bg_color.g, bg_color.b, minf(bg_color.a, 0.7))
-	style.border_color = Color(border_color.r, border_color.g, border_color.b, 0.56)
+	style.bg_color = Color(bg_color.r, bg_color.g, bg_color.b, minf(bg_color.a, 0.78))
+	style.border_color = Color(border_color.r, border_color.g, border_color.b, 0.46)
 	style.border_width_left = 1
 	style.border_width_top = 1
 	style.border_width_right = 1
@@ -119,8 +119,8 @@ func _make_chip_style(border_color: Color, bg_color: Color) -> StyleBoxFlat:
 	style.corner_radius_top_right = 16
 	style.corner_radius_bottom_right = 16
 	style.corner_radius_bottom_left = 16
-	style.shadow_color = Color(border_color.r, border_color.g, border_color.b, 0.12)
-	style.shadow_size = 12
+	style.shadow_color = Color(0, 0, 0, 0.18)
+	style.shadow_size = 14
 	style.content_margin_left = 13.0
 	style.content_margin_top = 9.0
 	style.content_margin_right = 13.0
@@ -145,9 +145,9 @@ func update_timer(time_left: float, time_max: float = 15.0) -> void:
 		timer_bar.value = time_left
 
 		if time_left < 3.0:
-			timer_bar.modulate = Color(1.0, 0.42, 0.32)
+			timer_bar.modulate = Color(0.96, 0.42, 0.30)
 		elif time_left < 6.0:
-			timer_bar.modulate = Color(1.0, 0.72, 0.32)
+			timer_bar.modulate = Color(0.95, 0.73, 0.38)
 		else:
 			timer_bar.modulate = Color.WHITE
 
@@ -204,17 +204,17 @@ func _update_time_pressure_chip(time_left: float, time_max: float, active: bool)
 			_time_pressure_label.text = "%ss clock" % _format_seconds(time_max)
 		else:
 			_time_pressure_label.text = "clock"
-		_time_pressure_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.7))
+		_time_pressure_label.add_theme_color_override("font_color", NeonColors.TITLE)
 		return
 
 	var urgency := time_left / maxf(time_max, 0.001)
 	_time_pressure_label.text = "T-%ss" % _format_seconds(time_left)
 	if urgency <= 0.3:
-		_time_pressure_label.add_theme_color_override("font_color", Color(1.0, 0.44, 0.3))
+		_time_pressure_label.add_theme_color_override("font_color", Color(0.96, 0.42, 0.30))
 	elif urgency <= 0.6:
-		_time_pressure_label.add_theme_color_override("font_color", Color(1.0, 0.74, 0.36))
+		_time_pressure_label.add_theme_color_override("font_color", Color(0.95, 0.73, 0.38))
 	else:
-		_time_pressure_label.add_theme_color_override("font_color", Color(1.0, 0.86, 0.7))
+		_time_pressure_label.add_theme_color_override("font_color", NeonColors.TITLE)
 
 func _format_seconds(value: float) -> String:
 	if value < 10.0:

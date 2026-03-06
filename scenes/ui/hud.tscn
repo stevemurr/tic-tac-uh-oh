@@ -3,36 +3,36 @@
 [ext_resource type="Script" path="res://scenes/ui/hud.gd" id="1"]
 
 [sub_resource type="StyleBoxFlat" id="turn_panel"]
-bg_color = Color(0.08, 0.12, 0.19, 0.76)
+bg_color = Color(0.08, 0.09, 0.12, 0.82)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.46, 0.9, 1, 0.42)
+border_color = Color(0.78, 0.68, 0.52, 0.32)
 corner_radius_top_left = 28
 corner_radius_top_right = 28
 corner_radius_bottom_right = 28
 corner_radius_bottom_left = 28
-shadow_color = Color(0, 0, 0, 0.24)
-shadow_size = 24
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 26
 content_margin_left = 20.0
 content_margin_top = 18.0
 content_margin_right = 20.0
 content_margin_bottom = 18.0
 
 [sub_resource type="StyleBoxFlat" id="status_panel"]
-bg_color = Color(0.08, 0.11, 0.18, 0.72)
+bg_color = Color(0.07, 0.08, 0.11, 0.8)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.44, 0.88, 1, 0.32)
+border_color = Color(0.68, 0.62, 0.48, 0.24)
 corner_radius_top_left = 28
 corner_radius_top_right = 28
 corner_radius_bottom_right = 28
 corner_radius_bottom_left = 28
-shadow_color = Color(0, 0, 0, 0.22)
-shadow_size = 22
+shadow_color = Color(0, 0, 0, 0.28)
+shadow_size = 24
 content_margin_left = 20.0
 content_margin_top = 18.0
 content_margin_right = 20.0
@@ -80,7 +80,7 @@ theme_override_constants/separation = 4
 
 [node name="TurnCaption" type="Label" parent="SafeArea/OverlayStack/TopRow/TurnPanel/TurnContent"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_colors/font_color = Color(0.7, 0.73, 0.79, 1)
 theme_override_font_sizes/font_size = 13
 text = "CURRENT TURN"
 
@@ -91,7 +91,7 @@ text = "Player X"
 
 [node name="RoundLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/TurnPanel/TurnContent"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_colors/font_color = Color(0.7, 0.73, 0.79, 1)
 theme_override_font_sizes/font_size = 15
 text = "Round 1"
 
@@ -107,7 +107,7 @@ theme_override_constants/separation = 4
 
 [node name="ScoreCaption" type="Label" parent="SafeArea/OverlayStack/TopRow/ScorePanel/ScoreContent"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
+theme_override_colors/font_color = Color(0.89, 0.67, 0.38, 1)
 theme_override_font_sizes/font_size = 13
 text = "SCORE"
 
@@ -118,7 +118,7 @@ text = "X 0  |  O 0"
 
 [node name="BoardInfoLabel" type="Label" parent="SafeArea/OverlayStack/TopRow/ScorePanel/ScoreContent"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_colors/font_color = Color(0.7, 0.73, 0.79, 1)
 theme_override_font_sizes/font_size = 16
 text = "3x3 | 3-in-a-row"
 
@@ -136,7 +136,7 @@ theme_override_constants/separation = 8
 
 [node name="ComplicationTitle" type="Label" parent="SafeArea/OverlayStack/StatusPanel/StatusContent/StatusHeader"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
+theme_override_colors/font_color = Color(0.89, 0.67, 0.38, 1)
 theme_override_font_sizes/font_size = 13
 text = "ACTIVE EFFECTS"
 
@@ -147,7 +147,7 @@ size_flags_horizontal = 3
 [node name="NetworkStatusLabel" type="Label" parent="SafeArea/OverlayStack/StatusPanel/StatusContent/StatusHeader"]
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(0.34, 0.86, 1, 1)
+theme_override_colors/font_color = Color(0.64, 0.88, 0.95, 1)
 theme_override_font_sizes/font_size = 13
 text = "Connected"
 
@@ -159,7 +159,7 @@ theme_override_constants/v_separation = 10
 [node name="StealLabel" type="Label" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]
 visible = false
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.55, 0.18, 1)
+theme_override_colors/font_color = Color(0.89, 0.67, 0.38, 1)
 theme_override_font_sizes/font_size = 14
 
 [node name="TimerBar" type="ProgressBar" parent="SafeArea/OverlayStack/StatusPanel/StatusContent"]

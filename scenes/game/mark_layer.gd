@@ -34,9 +34,9 @@ func _draw_x_mark(cell: Node, color: Color) -> void:
 
 	draw_set_transform(center, 0.0, cell.mark_scale)
 	if first_progress > 0.0:
-		_draw_glow_line(a * first_progress, b * first_progress, color, thickness, cell.mark_alpha)
+		_draw_beveled_line(a * first_progress, b * first_progress, color, thickness, cell.mark_alpha, size_px)
 	if second_progress > 0.0:
-		_draw_glow_line(c * second_progress, d * second_progress, color, thickness, cell.mark_alpha)
+		_draw_beveled_line(c * second_progress, d * second_progress, color, thickness, cell.mark_alpha, size_px)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
 func _draw_o_mark(cell: Node, color: Color) -> void:
@@ -49,30 +49,42 @@ func _draw_o_mark(cell: Node, color: Color) -> void:
 	var progress := maxf(cell.mark_progress, 0.02)
 
 	draw_set_transform(center, 0.0, cell.mark_scale)
-	_draw_glow_arc(radius, color, thickness, cell.mark_alpha, progress)
+	_draw_beveled_arc(radius, color, thickness, cell.mark_alpha, progress, size_px)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 
-func _draw_glow_line(from: Vector2, to: Vector2, color: Color, thickness: float, alpha: float) -> void:
-	var glow_outer := Color(color.r, color.g, color.b, 0.13 * alpha)
-	var glow_mid := Color(color.r, color.g, color.b, 0.28 * alpha)
-	var solid := Color(color.r, color.g, color.b, alpha)
-	draw_line(from, to, glow_outer, thickness * 2.2, true)
-	draw_line(from, to, glow_mid, thickness * 1.45, true)
-	draw_line(from, to, solid, thickness, true)
-	draw_line(from, to, Color(1, 1, 1, 0.16 * alpha), thickness * 0.22, true)
+func _draw_beveled_line(from: Vector2, to: Vector2, color: Color, thickness: float, alpha: float, size_px: float) -> void:
+	var shadow_offset := Vector2(size_px * 0.03, size_px * 0.035)
+	var shadow := Color(0.01, 0.01, 0.02, 0.30 * alpha)
+	var edge := Color(color.darkened(0.35).r, color.darkened(0.35).g, color.darkened(0.35).b, 0.62 * alpha)
+	var body := Color(color.lightened(0.04).r, color.lightened(0.04).g, color.lightened(0.04).b, alpha)
+	var glow := Color(color.r, color.g, color.b, 0.16 * alpha)
+	var highlight_offset := Vector2(-size_px * 0.014, -size_px * 0.02)
+	var highlight := Color(1.0, 0.98, 0.94, 0.22 * alpha)
 
-func _draw_glow_arc(radius: float, color: Color, thickness: float, alpha: float, progress: float) -> void:
+	draw_line(from + shadow_offset, to + shadow_offset, shadow, thickness * 1.7, true)
+	draw_line(from, to, glow, thickness * 2.2, true)
+	draw_line(from, to, edge, thickness * 1.38, true)
+	draw_line(from, to, body, thickness, true)
+	draw_line(from + highlight_offset, to + highlight_offset, highlight, thickness * 0.22, true)
+
+func _draw_beveled_arc(radius: float, color: Color, thickness: float, alpha: float, progress: float, size_px: float) -> void:
 	var arc_end := -PI * 0.5 + TAU * progress
 	var points := maxi(int(48 * progress), 6)
-	var glow_outer := Color(color.r, color.g, color.b, 0.13 * alpha)
-	var glow_mid := Color(color.r, color.g, color.b, 0.28 * alpha)
-	var solid := Color(color.r, color.g, color.b, alpha)
-	draw_arc(Vector2.ZERO, radius, -PI * 0.5, arc_end, points, glow_outer, thickness * 2.2, true)
-	draw_arc(Vector2.ZERO, radius, -PI * 0.5, arc_end, points, glow_mid, thickness * 1.45, true)
-	draw_arc(Vector2.ZERO, radius, -PI * 0.5, arc_end, points, solid, thickness, true)
-	draw_arc(Vector2.ZERO, radius, -PI * 0.5, arc_end, points, Color(1, 1, 1, 0.14 * alpha), thickness * 0.22, true)
+	var shadow_offset := Vector2(size_px * 0.03, size_px * 0.035)
+	var shadow := Color(0.01, 0.01, 0.02, 0.30 * alpha)
+	var edge := Color(color.darkened(0.35).r, color.darkened(0.35).g, color.darkened(0.35).b, 0.62 * alpha)
+	var body := Color(color.lightened(0.04).r, color.lightened(0.04).g, color.lightened(0.04).b, alpha)
+	var glow := Color(color.r, color.g, color.b, 0.16 * alpha)
+	var highlight_offset := Vector2(-size_px * 0.014, -size_px * 0.02)
+	var highlight := Color(1.0, 0.98, 0.94, 0.2 * alpha)
+
+	draw_arc(Vector2.ZERO + shadow_offset, radius, -PI * 0.5, arc_end, points, shadow, thickness * 1.7, true)
+	draw_arc(Vector2.ZERO, radius, -PI * 0.5, arc_end, points, glow, thickness * 2.2, true)
+	draw_arc(Vector2.ZERO, radius, -PI * 0.5, arc_end, points, edge, thickness * 1.38, true)
+	draw_arc(Vector2.ZERO, radius, -PI * 0.5, arc_end, points, body, thickness, true)
+	draw_arc(Vector2.ZERO + highlight_offset, radius, -PI * 0.5, arc_end, points, highlight, thickness * 0.22, true)
 
 func _draw_blocked_slash() -> void:
 	var size_px := minf(size.x, size.y)
 	var margin := size_px * 0.28
-	draw_line(Vector2(margin, margin), Vector2(size.x - margin, size.y - margin), Color(1, 0.45, 0.35, 0.18), 5.0, true)
+	draw_line(Vector2(margin, margin), Vector2(size.x - margin, size.y - margin), Color(0.96, 0.54, 0.42, 0.18), 5.0, true)

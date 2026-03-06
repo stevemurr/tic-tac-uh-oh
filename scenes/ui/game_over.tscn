@@ -7,18 +7,18 @@ content_margin_left = 28.0
 content_margin_top = 24.0
 content_margin_right = 28.0
 content_margin_bottom = 26.0
-bg_color = Color(0.07, 0.1, 0.17, 0.82)
+bg_color = Color(0.07, 0.08, 0.1, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.5, 0.9, 1, 0.34)
+border_color = Color(0.82, 0.73, 0.56, 0.28)
 corner_radius_top_left = 34
 corner_radius_top_right = 34
 corner_radius_bottom_right = 34
 corner_radius_bottom_left = 34
-shadow_color = Color(0, 0, 0, 0.3)
-shadow_size = 36
+shadow_color = Color(0, 0, 0, 0.36)
+shadow_size = 40
 
 [node name="GameOverScreen" type="Control"]
 layout_mode = 1
@@ -36,7 +36,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.02, 0.03, 0.06, 0.7)
+color = Color(0.02, 0.02, 0.03, 0.78)
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 1
@@ -63,14 +63,14 @@ horizontal_alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="CenterContainer/GameOverCard/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.82, 0.63, 1)
+theme_override_colors/font_color = Color(0.95, 0.84, 0.67, 1)
 theme_override_font_sizes/font_size = 25
 text = "X 0  |  O 0"
 horizontal_alignment = 1
 
 [node name="StatsLabel" type="Label" parent="CenterContainer/GameOverCard/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.66, 0.74, 0.84, 1)
+theme_override_colors/font_color = Color(0.7, 0.73, 0.79, 1)
 theme_override_font_sizes/font_size = 16
 text = "Stats"
 horizontal_alignment = 1

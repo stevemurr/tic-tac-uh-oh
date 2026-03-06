@@ -822,6 +822,35 @@ func test_comp_rotating_4x4() -> String:
 	return ""
 
 
+func test_comp_aftershock_prevents_one_move_win() -> String:
+	GameState.reset_session()
+	GameState.current_board_size = 4
+	GameState.current_win_length = 4
+
+	var board = BoardModel.new(4)
+	board.set_cell(0, 0)
+	board.set_cell(1, 0)
+	board.set_cell(2, 0)
+	board.set_cell(5, 1)
+	board.set_cell(6, 1)
+
+	var aftershock = AftershockComplication.new()
+	aftershock.on_game_start(board)
+	aftershock._state["turns_since_mixup"] = 3
+
+	var checker = WinChecker.new(4, 4)
+	var GuardScript = load("res://scripts/core/board_transition_guard.gd")
+	if not GuardScript.has_immediate_winning_move(board, checker):
+		return "setup should contain an immediate winning move"
+
+	seed(42)
+	aftershock.on_turn_end(0, board, TurnManager.new())
+
+	if GuardScript.has_immediate_winning_move(board, checker):
+		return "aftershock should not leave an immediate winning move"
+	return ""
+
+
 func test_comp_bomb_3x3() -> String:
 	return test_comp_bomb_spawn()
 
@@ -1330,6 +1359,100 @@ func test_edge_empty_wildcard_no_win() -> String:
 	board.set_cell(2, 0)
 	if checker.check_winner_with_wildcards(board) != -1:
 		return "Empty wildcard should not contribute to win"
+	return ""
+
+
+func test_edge_post_growth_guard_prevents_one_move_win() -> String:
+	var GuardScript = load("res://scripts/core/board_transition_guard.gd")
+	var board = BoardModel.new(4)
+	var checker = WinChecker.new(4, 4)
+
+	board.set_cell(0, 0)
+	board.set_cell(1, 0)
+	board.set_cell(2, 0)
+	board.set_cell(5, 1)
+	board.set_cell(6, 1)
+
+	if not GuardScript.has_immediate_winning_move(board, checker):
+		return "setup should contain an immediate winning move"
+
+	seed(42)
+	var final_mixup: String = GuardScript.stabilize_mixup(board, checker, "Shuffle")
+	if final_mixup == "":
+		return "guard should report a final mixup name"
+	if GuardScript.has_immediate_winning_move(board, checker):
+		return "guard should remove immediate winning moves"
+	return ""
+
+
+# ---------------------------------------------------------------------------
+#  RUN MODE TESTS
+# ---------------------------------------------------------------------------
+
+func test_run_start_new_run_initializes_state() -> String:
+	RunState.start_new_run("clocksmith", 123)
+	if RunState.run_status != RunState.RunStatus.MAP:
+		return "run_status should be MAP"
+	if RunState.character == null:
+		return "character should be initialized"
+	if RunState.character_id != "clocksmith":
+		return "character_id should be clocksmith"
+	if not RunState.has_rune("anchor_rune"):
+		return "starter rune should be granted"
+	if RunState.map_nodes.is_empty():
+		return "map_nodes should not be empty"
+	RunState.reset()
+	return ""
+
+
+func test_run_map_generation_unlocks_gate() -> String:
+	RunState.start_new_run("bastion_heir", 456)
+	var node = RunState.get_node_by_id("gate")
+	if node == null:
+		return "gate node should exist"
+	if not node.available:
+		return "gate node should be available"
+	var boss = RunState.get_node_by_id("boss_gate")
+	if boss == null:
+		return "boss node should exist"
+	if boss.available:
+		return "boss should start locked"
+	RunState.reset()
+	return ""
+
+
+func test_run_battle_win_unlocks_rewards() -> String:
+	RunState.start_new_run("plague_scribe", 789)
+	if not RunState.select_node("gate"):
+		return "should be able to select gate"
+	if RunState.begin_encounter() == null:
+		return "battle encounter should exist"
+	RunState.apply_battle_win({"sigils": 20, "reward_tier": 1})
+	if RunState.run_status != RunState.RunStatus.REWARD:
+		return "battle win should open rewards"
+	if RunState.last_reward_options.is_empty():
+		return "battle rewards should be generated"
+	RunState.claim_reward(0)
+	var forge = RunState.get_node_by_id("forge")
+	var stairs = RunState.get_node_by_id("stairs")
+	if forge == null or stairs == null:
+		return "next floor nodes should exist"
+	if not forge.available or not stairs.available:
+		return "next floor nodes should unlock after battle reward resolution"
+	RunState.reset()
+	return ""
+
+
+func test_run_scene_resources_load() -> String:
+	for path in [
+		"res://scenes/run/character_select.tscn",
+		"res://scenes/run/castle_map.tscn",
+		"res://scenes/run/reward_choice.tscn",
+	]:
+		var resource = load(path)
+		if resource == null:
+			return "Failed to load %s" % path
+	RunState.reset()
 	return ""
 
 

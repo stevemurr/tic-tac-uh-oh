@@ -1,7 +1,7 @@
 class_name GameStateClass
 extends Node
 
-enum GameMode { LOCAL_2P, VS_AI, ONLINE }
+enum GameMode { LOCAL_2P, VS_AI, ONLINE, CASTLE_ASCENT }
 enum Difficulty { EASY, MEDIUM, HARD }
 
 const DEFAULT_TURN_TIME: float = 15.0

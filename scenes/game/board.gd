@@ -6,7 +6,9 @@ var cells: Array[Node] = []
 var _current_size: int = 3
 
 @onready var frame: Panel = $Frame
+@onready var frame_trim: Panel = $FrameTrim
 @onready var inner_frame: Panel = $InnerFrame
+@onready var grid_backdrop: Panel = $GridBackdrop
 @onready var grid: GridContainer = $GridContainer
 
 const GRID_SEPARATION := 6.0
@@ -15,7 +17,9 @@ const MAX_GRID_PX := 560.0
 const BOARD_MARGIN_X := 120.0
 const BOARD_MARGIN_Y := 520.0
 const FRAME_PADDING := 34.0
+const TRIM_PADDING := 24.0
 const INNER_PADDING := 18.0
+const GRID_BACKDROP_PADDING := 12.0
 
 func _ready() -> void:
 	grid.add_theme_constant_override("h_separation", int(GRID_SEPARATION))
@@ -63,6 +67,20 @@ func _layout_shell(cell_px: float, size: int) -> void:
 	frame.offset_top = -frame_half
 	frame.offset_right = frame_half
 	frame.offset_bottom = frame_half
+
+	if frame_trim:
+		var trim_half := half + TRIM_PADDING
+		frame_trim.offset_left = -trim_half
+		frame_trim.offset_top = -trim_half
+		frame_trim.offset_right = trim_half
+		frame_trim.offset_bottom = trim_half
+
+	if grid_backdrop:
+		var backdrop_half := half + GRID_BACKDROP_PADDING
+		grid_backdrop.offset_left = -backdrop_half
+		grid_backdrop.offset_top = -backdrop_half
+		grid_backdrop.offset_right = backdrop_half
+		grid_backdrop.offset_bottom = backdrop_half
 
 func _refresh_layout() -> void:
 	if cells.is_empty():

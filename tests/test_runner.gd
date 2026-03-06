@@ -98,6 +98,7 @@ func _collect_tests(s) -> Array[Dictionary]:
 	tests.append({"name": "comp/wildcard_counts_both", "callable": s.test_comp_wildcard_counts_both})
 	tests.append({"name": "comp/rotating_3x3", "callable": s.test_comp_rotating_3x3})
 	tests.append({"name": "comp/rotating_4x4", "callable": s.test_comp_rotating_4x4})
+	tests.append({"name": "comp/aftershock_prevents_one_move_win", "callable": s.test_comp_aftershock_prevents_one_move_win})
 	tests.append({"name": "comp/bomb_3x3", "callable": s.test_comp_bomb_3x3})
 	tests.append({"name": "comp/bomb_6x6", "callable": s.test_comp_bomb_6x6})
 	tests.append({"name": "comp/stack_gravity_mirror", "callable": s.test_comp_stack_gravity_mirror})
@@ -129,6 +130,13 @@ func _collect_tests(s) -> Array[Dictionary]:
 	tests.append({"name": "edge/all_complications_simultaneously", "callable": s.test_edge_all_complications_simultaneously})
 	tests.append({"name": "edge/max_growth", "callable": s.test_edge_max_growth})
 	tests.append({"name": "edge/empty_wildcard_no_win", "callable": s.test_edge_empty_wildcard_no_win})
+	tests.append({"name": "edge/post_growth_guard_prevents_one_move_win", "callable": s.test_edge_post_growth_guard_prevents_one_move_win})
+
+	# Run Mode
+	tests.append({"name": "run/start_new_run_initializes_state", "callable": s.test_run_start_new_run_initializes_state})
+	tests.append({"name": "run/map_generation_unlocks_gate", "callable": s.test_run_map_generation_unlocks_gate})
+	tests.append({"name": "run/battle_win_unlocks_rewards", "callable": s.test_run_battle_win_unlocks_rewards})
+	tests.append({"name": "run/scene_resources_load", "callable": s.test_run_scene_resources_load})
 
 	return tests
 

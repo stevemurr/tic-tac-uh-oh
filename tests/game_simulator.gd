@@ -3,6 +3,8 @@ extends RefCounted
 ## Pure synchronous game simulator that mirrors game.gd logic without UI/await.
 ## Every mutating method returns "" on success or an error string on failure.
 
+const BoardTransitionGuardScript = preload("res://scripts/core/board_transition_guard.gd")
+
 var board: BoardModel
 var win_checker: WinChecker
 var move_validator: MoveValidator
@@ -185,6 +187,8 @@ func handle_draw() -> String:
 
 	# Regenerate win patterns
 	win_checker.generate_patterns(new_size, new_win_length)
+	if forced_mixup != "None":
+		BoardTransitionGuardScript.stabilize_mixup(board, win_checker, forced_mixup if forced_mixup != "" else "")
 
 	# Reset turns but keep marks
 	turn_manager.reset()

@@ -11,6 +11,7 @@ var _debug_button_group: ButtonGroup
 @onready var local_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/LocalButton
 @onready var online_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/OnlineButton
 @onready var ai_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/AIButton
+@onready var castle_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/CastleButton
 @onready var difficulty_container: VBoxContainer = $ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer
 @onready var easy_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer/DifficultyButtons/EasyButton
 @onready var medium_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer/DifficultyButtons/MediumButton
@@ -34,6 +35,7 @@ func _wire_mode_signals() -> void:
 	_connect_pressed(local_btn, _on_local_pressed)
 	_connect_pressed(online_btn, _on_online_pressed)
 	_connect_pressed(ai_btn, _on_ai_pressed)
+	_connect_pressed(castle_btn, _on_castle_pressed)
 	_connect_pressed(easy_btn, _on_easy)
 	_connect_pressed(medium_btn, _on_medium)
 	_connect_pressed(hard_btn, _on_hard)
@@ -123,8 +125,8 @@ func _start_title_glow() -> void:
 		return
 	title_label.add_theme_color_override("font_color", NeonColors.TITLE)
 	_title_tween = create_tween().set_loops()
-	_title_tween.tween_property(title_label, "modulate:a", 0.78, 1.2).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
-	_title_tween.tween_property(title_label, "modulate:a", 1.0, 1.2).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	_title_tween.tween_property(title_label, "modulate:a", 0.92, 1.8).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
+	_title_tween.tween_property(title_label, "modulate:a", 1.0, 1.8).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_SINE)
 
 func _on_board_size_selected(size_val: int) -> void:
 	GameState.start_board_size = size_val
@@ -155,6 +157,10 @@ func _on_online_pressed() -> void:
 func _on_ai_pressed() -> void:
 	if difficulty_container:
 		difficulty_container.visible = true
+
+func _on_castle_pressed() -> void:
+	GameState.game_mode = GameState.GameMode.CASTLE_ASCENT
+	get_tree().change_scene_to_file("res://scenes/run/character_select.tscn")
 
 func _on_easy() -> void:
 	_start_ai_game(GameState.Difficulty.EASY)
