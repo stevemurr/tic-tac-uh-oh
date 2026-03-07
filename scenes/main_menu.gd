@@ -12,6 +12,7 @@ var _debug_button_group: ButtonGroup
 @onready var online_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/OnlineButton
 @onready var ai_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/AIButton
 @onready var castle_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/CastleButton
+@onready var dungeon_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/DungeonButton
 @onready var difficulty_container: VBoxContainer = $ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer
 @onready var easy_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer/DifficultyButtons/EasyButton
 @onready var medium_btn: Button = $ContentMargin/VBoxContainer/ModePanel/ModeContent/DifficultyContainer/DifficultyButtons/MediumButton
@@ -36,6 +37,7 @@ func _wire_mode_signals() -> void:
 	_connect_pressed(online_btn, _on_online_pressed)
 	_connect_pressed(ai_btn, _on_ai_pressed)
 	_connect_pressed(castle_btn, _on_castle_pressed)
+	_connect_pressed(dungeon_btn, _on_dungeon_pressed)
 	_connect_pressed(easy_btn, _on_easy)
 	_connect_pressed(medium_btn, _on_medium)
 	_connect_pressed(hard_btn, _on_hard)
@@ -161,6 +163,11 @@ func _on_ai_pressed() -> void:
 func _on_castle_pressed() -> void:
 	GameState.game_mode = GameState.GameMode.CASTLE_ASCENT
 	get_tree().change_scene_to_file("res://scenes/run/character_select.tscn")
+
+func _on_dungeon_pressed() -> void:
+	GameState.game_mode = GameState.GameMode.DUNGEON_CRAWL
+	DungeonState.start_new_run()
+	get_tree().change_scene_to_file("res://scenes/dungeon/dungeon_map.tscn")
 
 func _on_easy() -> void:
 	_start_ai_game(GameState.Difficulty.EASY)

@@ -1,0 +1,193 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scenes/dungeon/dungeon_battle.gd" id="1"]
+[ext_resource type="Shader" path="res://shaders/scanline_bg.gdshader" id="2"]
+[ext_resource type="ShaderMaterial" path="res://shaders/soft_disc_material.tres" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/game/board.tscn" id="4"]
+
+[sub_resource type="ShaderMaterial" id="bg_mat"]
+shader = ExtResource("2")
+shader_parameter/bg_color = Color(0.02, 0.025, 0.04, 1)
+shader_parameter/grid_color = Color(0.22, 0.28, 0.34, 0.08)
+shader_parameter/glow_color = Color(0.24, 0.38, 0.42, 0.12)
+shader_parameter/beam_color = Color(0.92, 0.74, 0.48, 0.08)
+shader_parameter/mist_color = Color(0.08, 0.08, 0.1, 0.22)
+shader_parameter/grid_spacing = 72.0
+shader_parameter/grid_thickness = 1.0
+shader_parameter/scroll_speed = 3.8
+shader_parameter/scanline_alpha = 0.025
+shader_parameter/scanline_spacing = 3.0
+shader_parameter/beam_width = 0.22
+
+[sub_resource type="StyleBoxFlat" id="objective_panel"]
+bg_color = Color(0.06, 0.07, 0.09, 0.8)
+anti_aliasing = true
+anti_aliasing_size = 1.6
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_blend = true
+border_color = Color(0.79, 0.69, 0.54, 0.22)
+corner_radius_top_left = 28
+corner_radius_top_right = 28
+corner_radius_bottom_right = 28
+corner_radius_bottom_left = 28
+corner_detail = 18
+expand_margin_left = 1.0
+expand_margin_top = 1.0
+expand_margin_right = 1.0
+expand_margin_bottom = 1.0
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 22
+content_margin_left = 20.0
+content_margin_top = 18.0
+content_margin_right = 20.0
+content_margin_bottom = 18.0
+
+[node name="DungeonBattle" type="Control"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+material = SubResource("bg_mat")
+color = Color(0.02, 0.025, 0.04, 1)
+
+[node name="DecorTop" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 916.0
+offset_top = 82.0
+offset_right = 1268.0
+offset_bottom = 434.0
+rotation = 0.261799
+mouse_filter = 2
+material = ExtResource("3")
+color = Color(1, 1, 1, 1)
+
+[node name="DecorBottom" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = -140.0
+offset_top = 842.0
+offset_right = 244.0
+offset_bottom = 1226.0
+rotation = -0.279253
+mouse_filter = 2
+material = ExtResource("3")
+color = Color(1, 1, 1, 1)
+
+[node name="ContentMargin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 36
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 36
+theme_override_constants/margin_bottom = 32
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="HeaderRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="EnemyBlock" type="VBoxContainer" parent="ContentMargin/VBoxContainer/HeaderRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="EnemyLabel" type="Label" parent="ContentMargin/VBoxContainer/HeaderRow/EnemyBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.97, 0.94, 0.88, 1)
+theme_override_font_sizes/font_size = 40
+text = "Enemy"
+
+[node name="EnemyDescLabel" type="Label" parent="ContentMargin/VBoxContainer/HeaderRow/EnemyBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.89, 0.67, 0.38, 1)
+theme_override_font_sizes/font_size = 17
+text = "Enemy description"
+
+[node name="StatBlock" type="VBoxContainer" parent="ContentMargin/VBoxContainer/HeaderRow"]
+layout_mode = 2
+horizontal_alignment = 2
+theme_override_constants/separation = 6
+
+[node name="PlayerHpLabel" type="Label" parent="ContentMargin/VBoxContainer/HeaderRow/StatBlock"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "HP 12 / 12"
+horizontal_alignment = 2
+
+[node name="EnemyHpLabel" type="Label" parent="ContentMargin/VBoxContainer/HeaderRow/StatBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.72, 0.54, 1)
+theme_override_font_sizes/font_size = 20
+text = "Enemy HP 6"
+horizontal_alignment = 2
+
+[node name="ObjectiveCard" type="PanelContainer" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("objective_panel")
+
+[node name="ObjectiveContent" type="VBoxContainer" parent="ContentMargin/VBoxContainer/ObjectiveCard"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="ObjectiveTitle" type="Label" parent="ContentMargin/VBoxContainer/ObjectiveCard/ObjectiveContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.97, 0.94, 0.88, 1)
+theme_override_font_sizes/font_size = 30
+text = "Puzzle"
+
+[node name="ObjectiveDesc" type="Label" parent="ContentMargin/VBoxContainer/ObjectiveCard/ObjectiveContent"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 17
+text = "Objective"
+autowrap_mode = 2
+
+[node name="BoardCard" type="CenterContainer" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BattleBoard" parent="ContentMargin/VBoxContainer/BoardCard" instance=ExtResource("4")]
+custom_minimum_size = Vector2(640, 640)
+layout_mode = 2
+
+[node name="StatusLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+text = "Status"
+autowrap_mode = 2
+
+[node name="EquipmentLabel" type="Label" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 15
+text = "Loadout"
+autowrap_mode = 2
+
+[node name="FooterRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer"]
+layout_mode = 2
+
+[node name="LeaveButton" type="Button" parent="ContentMargin/VBoxContainer/FooterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(180, 50)
+text = "Back to Map"

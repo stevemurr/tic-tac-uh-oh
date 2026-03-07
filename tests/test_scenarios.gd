@@ -1457,6 +1457,91 @@ func test_run_scene_resources_load() -> String:
 
 
 # ---------------------------------------------------------------------------
+#  DUNGEON MODE TESTS
+# ---------------------------------------------------------------------------
+
+func test_dungeon_start_new_run_initializes_state() -> String:
+	DungeonState.start_new_run(123)
+	if DungeonState.status != DungeonState.CrawlStatus.MAP:
+		return "dungeon should start in MAP status"
+	if DungeonState.player_hp != DungeonState.max_hp:
+		return "player hp should start full"
+	if DungeonState.map_width <= DungeonState.VIEWPORT_WIDTH or DungeonState.map_height <= DungeonState.VIEWPORT_HEIGHT:
+		return "dungeon floor should be larger than the viewport"
+	if DungeonState.tiles.size() != DungeonState.map_width * DungeonState.map_height:
+		return "tile count should match dungeon dimensions"
+	if DungeonState.get_page_count_x() < 2 or DungeonState.get_page_count_y() < 2:
+		return "expected multiple pages for the larger dungeon floor"
+	if DungeonState.get_remaining_enemy_count() < 5:
+		return "expected at least 5 enemies on a new floor"
+	DungeonState.reset()
+	return ""
+
+
+func test_dungeon_move_to_enemy_starts_battle() -> String:
+	DungeonState.start_new_run(456)
+	var target_index := DungeonState.player_index + 1
+	var tile: Dictionary = DungeonState.get_tile(target_index)
+	tile["type"] = "enemy"
+	DungeonState.tiles[target_index] = tile
+
+	var result := DungeonState.move_to(target_index)
+	if result != "enemy":
+		return "expected enemy encounter, got %s" % result
+	if DungeonState.status != DungeonState.CrawlStatus.BATTLE:
+		return "status should be BATTLE after entering enemy room"
+	if DungeonState.pending_enemy.is_empty():
+		return "pending enemy should be populated"
+	DungeonState.reset()
+	return ""
+
+
+func test_dungeon_puzzle_generator_returns_valid_solution() -> String:
+	var PuzzleScript = load("res://scripts/dungeon/dungeon_puzzle_generator.gd")
+	var puzzle: Dictionary = PuzzleScript.generate_puzzle({
+		"preferred_variants": ["line_strike", "shield_block", "fork_setup"]
+	}, 1)
+	if puzzle.is_empty():
+		return "generator returned empty puzzle"
+	var correct_moves: Array = puzzle.get("correct_moves", [])
+	if correct_moves.is_empty():
+		return "puzzle has no correct moves"
+	for move in correct_moves:
+		if not PuzzleScript.is_correct_move(puzzle, int(move)):
+			return "expected move %d to be correct" % int(move)
+	return ""
+
+
+func test_dungeon_reward_claim_grants_equipment() -> String:
+	DungeonState.start_new_run(789)
+	DungeonState.last_reward_options = [{
+		"reward_type": "equipment",
+		"payload_id": "iron_blade",
+		"display_name": "Iron Blade",
+		"description": "+1 damage",
+	}]
+	if not DungeonState.claim_reward(0):
+		return "claim_reward should succeed"
+	if "iron_blade" not in DungeonState.equipment_ids:
+		return "equipment should be granted after claim"
+	DungeonState.reset()
+	return ""
+
+
+func test_dungeon_scene_resources_load() -> String:
+	for path in [
+		"res://scenes/dungeon/dungeon_map.tscn",
+		"res://scenes/dungeon/dungeon_battle.tscn",
+		"res://scenes/dungeon/dungeon_reward.tscn",
+	]:
+		var resource = load(path)
+		if resource == null:
+			return "Failed to load %s" % path
+	DungeonState.reset()
+	return ""
+
+
+# ---------------------------------------------------------------------------
 #  HELPERS
 # ---------------------------------------------------------------------------
 

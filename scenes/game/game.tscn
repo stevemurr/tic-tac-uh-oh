@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://nnounce001" path="res://scenes/ui/complication_announcement.tscn" id="4"]
 [ext_resource type="PackedScene" uid="uid://gameover001" path="res://scenes/ui/game_over.tscn" id="5"]
 [ext_resource type="Shader" uid="uid://bj7282la1enpp" path="res://shaders/scanline_bg.gdshader" id="6"]
+[ext_resource type="ShaderMaterial" path="res://shaders/soft_disc_material.tres" id="7"]
 
 [sub_resource type="ShaderMaterial" id="scanline_mat"]
 shader = ExtResource("6")
@@ -20,20 +21,6 @@ shader_parameter/scroll_speed = 4.0
 shader_parameter/scanline_alpha = 0.025
 shader_parameter/scanline_spacing = 3.0
 shader_parameter/beam_width = 0.22
-
-[sub_resource type="StyleBoxFlat" id="decor_panel"]
-bg_color = Color(0.56, 0.43, 0.25, 0.09)
-anti_aliasing = true
-anti_aliasing_size = 2.0
-corner_radius_top_left = 110
-corner_radius_top_right = 110
-corner_radius_bottom_right = 110
-corner_radius_bottom_left = 110
-corner_detail = 24
-expand_margin_left = 1.5
-expand_margin_top = 1.5
-expand_margin_right = 1.5
-expand_margin_bottom = 1.5
 
 [node name="Game" type="Control" unique_id=1562069057]
 layout_mode = 3
@@ -54,7 +41,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.025, 0.03, 0.05, 1)
 
-[node name="DecorTop" type="Panel" parent="." unique_id=1225658754]
+[node name="DecorTop" type="ColorRect" parent="." unique_id=1225658754]
 layout_mode = 0
 offset_left = 488.0
 offset_top = 114.0
@@ -62,9 +49,10 @@ offset_right = 840.0
 offset_bottom = 466.0
 rotation = 0.314159
 mouse_filter = 2
-theme_override_styles/panel = SubResource("decor_panel")
+material = ExtResource("7")
+color = Color(1, 1, 1, 1)
 
-[node name="DecorBottom" type="Panel" parent="." unique_id=1693732128]
+[node name="DecorBottom" type="ColorRect" parent="." unique_id=1693732128]
 layout_mode = 0
 offset_left = -132.0
 offset_top = 874.0
@@ -72,7 +60,8 @@ offset_right = 248.0
 offset_bottom = 1254.0
 rotation = -0.279253
 mouse_filter = 2
-theme_override_styles/panel = SubResource("decor_panel")
+material = ExtResource("7")
+color = Color(1, 1, 1, 1)
 
 [node name="Board" parent="." unique_id=1751806411 instance=ExtResource("2")]
 anchors_preset = 8

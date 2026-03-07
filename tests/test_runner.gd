@@ -138,6 +138,13 @@ func _collect_tests(s) -> Array[Dictionary]:
 	tests.append({"name": "run/battle_win_unlocks_rewards", "callable": s.test_run_battle_win_unlocks_rewards})
 	tests.append({"name": "run/scene_resources_load", "callable": s.test_run_scene_resources_load})
 
+	# Dungeon Mode
+	tests.append({"name": "dungeon/start_new_run_initializes_state", "callable": s.test_dungeon_start_new_run_initializes_state})
+	tests.append({"name": "dungeon/move_to_enemy_starts_battle", "callable": s.test_dungeon_move_to_enemy_starts_battle})
+	tests.append({"name": "dungeon/puzzle_generator_returns_valid_solution", "callable": s.test_dungeon_puzzle_generator_returns_valid_solution})
+	tests.append({"name": "dungeon/reward_claim_grants_equipment", "callable": s.test_dungeon_reward_claim_grants_equipment})
+	tests.append({"name": "dungeon/scene_resources_load", "callable": s.test_dungeon_scene_resources_load})
+
 	return tests
 
 

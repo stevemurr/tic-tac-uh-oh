@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/main_menu.gd" id="1"]
 [ext_resource type="Shader" path="res://shaders/scanline_bg.gdshader" id="2"]
+[ext_resource type="ShaderMaterial" path="res://shaders/soft_disc_material.tres" id="3"]
 
 [sub_resource type="ShaderMaterial" id="scanline_mat"]
 shader = ExtResource("2")
@@ -95,20 +96,6 @@ content_margin_top = 22.0
 content_margin_right = 22.0
 content_margin_bottom = 22.0
 
-[sub_resource type="StyleBoxFlat" id="decor_panel"]
-bg_color = Color(0.56, 0.43, 0.25, 0.09)
-anti_aliasing = true
-anti_aliasing_size = 1.9
-corner_radius_top_left = 90
-corner_radius_top_right = 90
-corner_radius_bottom_right = 90
-corner_radius_bottom_left = 90
-corner_detail = 24
-expand_margin_left = 1.5
-expand_margin_top = 1.5
-expand_margin_right = 1.5
-expand_margin_bottom = 1.5
-
 [node name="MainMenu" type="Control"]
 layout_mode = 1
 anchors_preset = 15
@@ -128,7 +115,7 @@ grow_vertical = 2
 material = SubResource("scanline_mat")
 color = Color(0.025, 0.03, 0.05, 1)
 
-[node name="DecorTop" type="Panel" parent="."]
+[node name="DecorTop" type="ColorRect" parent="."]
 layout_mode = 0
 offset_left = 442.0
 offset_top = 84.0
@@ -136,9 +123,10 @@ offset_right = 774.0
 offset_bottom = 416.0
 rotation = 0.261799
 mouse_filter = 2
-theme_override_styles/panel = SubResource("decor_panel")
+material = ExtResource("3")
+color = Color(1, 1, 1, 1)
 
-[node name="DecorBottom" type="Panel" parent="."]
+[node name="DecorBottom" type="ColorRect" parent="."]
 layout_mode = 0
 offset_left = -118.0
 offset_top = 934.0
@@ -146,7 +134,8 @@ offset_right = 254.0
 offset_bottom = 1306.0
 rotation = -0.314159
 mouse_filter = 2
-theme_override_styles/panel = SubResource("decor_panel")
+material = ExtResource("3")
+color = Color(1, 1, 1, 1)
 
 [node name="ContentMargin" type="MarginContainer" parent="."]
 layout_mode = 1
@@ -261,6 +250,11 @@ text = "VS AI"
 layout_mode = 2
 custom_minimum_size = Vector2(0, 64)
 text = "Castle Ascent"
+
+[node name="DungeonButton" type="Button" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 64)
+text = "Dungeon Crawl"
 
 [node name="DifficultyContainer" type="VBoxContainer" parent="ContentMargin/VBoxContainer/ModePanel/ModeContent"]
 visible = false

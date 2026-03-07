@@ -1,19 +1,19 @@
 [gd_scene load_steps=5 format=3]
 
-[ext_resource type="Script" path="res://scenes/run/character_select.gd" id="1"]
+[ext_resource type="Script" path="res://scenes/dungeon/dungeon_reward.gd" id="1"]
 [ext_resource type="Shader" path="res://shaders/scanline_bg.gdshader" id="2"]
 [ext_resource type="ShaderMaterial" path="res://shaders/soft_disc_material.tres" id="3"]
 
 [sub_resource type="ShaderMaterial" id="bg_mat"]
 shader = ExtResource("2")
-shader_parameter/bg_color = Color(0.025, 0.03, 0.05, 1)
-shader_parameter/grid_color = Color(0.24, 0.3, 0.36, 0.08)
-shader_parameter/glow_color = Color(0.28, 0.4, 0.46, 0.12)
-shader_parameter/beam_color = Color(0.94, 0.76, 0.5, 0.1)
-shader_parameter/mist_color = Color(0.11, 0.11, 0.12, 0.2)
+shader_parameter/bg_color = Color(0.02, 0.025, 0.04, 1)
+shader_parameter/grid_color = Color(0.22, 0.28, 0.34, 0.08)
+shader_parameter/glow_color = Color(0.24, 0.38, 0.42, 0.12)
+shader_parameter/beam_color = Color(0.92, 0.74, 0.48, 0.08)
+shader_parameter/mist_color = Color(0.08, 0.08, 0.1, 0.22)
 shader_parameter/grid_spacing = 72.0
 shader_parameter/grid_thickness = 1.0
-shader_parameter/scroll_speed = 4.0
+shader_parameter/scroll_speed = 3.8
 shader_parameter/scanline_alpha = 0.025
 shader_parameter/scanline_spacing = 3.0
 shader_parameter/beam_width = 0.22
@@ -40,7 +40,7 @@ expand_margin_bottom = 1.0
 shadow_color = Color(0, 0, 0, 0.32)
 shadow_size = 28
 
-[node name="CharacterSelect" type="Control"]
+[node name="DungeonReward" type="Control"]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -57,14 +57,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 material = SubResource("bg_mat")
-color = Color(0.025, 0.03, 0.05, 1)
+color = Color(0.02, 0.025, 0.04, 1)
 
 [node name="DecorTop" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = 906.0
-offset_top = 78.0
-offset_right = 1260.0
-offset_bottom = 430.0
+offset_left = 932.0
+offset_top = 70.0
+offset_right = 1284.0
+offset_bottom = 422.0
 rotation = 0.261799
 mouse_filter = 2
 material = ExtResource("3")
@@ -72,11 +72,11 @@ color = Color(1, 1, 1, 1)
 
 [node name="DecorBottom" type="ColorRect" parent="."]
 layout_mode = 0
-offset_left = -140.0
-offset_top = 824.0
-offset_right = 244.0
-offset_bottom = 1208.0
-rotation = -0.296706
+offset_left = -136.0
+offset_top = 836.0
+offset_right = 248.0
+offset_bottom = 1220.0
+rotation = -0.279253
 mouse_filter = 2
 material = ExtResource("3")
 color = Color(1, 1, 1, 1)
@@ -103,34 +103,42 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 54
+theme_override_constants/margin_top = 48
 theme_override_constants/margin_right = 40
 theme_override_constants/margin_bottom = 42
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ContentMargin"]
 layout_mode = 2
-theme_override_constants/separation = 18
+theme_override_constants/separation = 16
 
 [node name="TitleLabel" type="Label" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.97, 0.94, 0.88, 1)
-theme_override_font_sizes/font_size = 46
-text = "Choose Your Climber"
+theme_override_font_sizes/font_size = 42
+text = "Choose a Reward"
 
 [node name="SubtitleLabel" type="Label" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.73, 0.79, 1)
-theme_override_font_sizes/font_size = 18
-text = "Pick a character, claim a starter rune, and begin the ascent up the castle wall."
+theme_override_colors/font_color = Color(0.72, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 16
+text = "Take one reward and continue."
 autowrap_mode = 2
 
-[node name="CharacterCards" type="HFlowContainer" parent="ContentMargin/VBoxContainer"]
+[node name="OptionsContainer" type="VBoxContainer" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/h_separation = 14
-theme_override_constants/v_separation = 14
+theme_override_constants/separation = 12
 
-[node name="BackButton" type="Button" parent="ContentMargin/VBoxContainer"]
+[node name="FooterRow" type="HBoxContainer" parent="ContentMargin/VBoxContainer"]
 layout_mode = 2
-custom_minimum_size = Vector2(0, 52)
-text = "Back"
+theme_override_constants/separation = 12
+
+[node name="SkipButton" type="Button" parent="ContentMargin/VBoxContainer/FooterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(180, 50)
+text = "Skip Reward"
+
+[node name="ContinueButton" type="Button" parent="ContentMargin/VBoxContainer/FooterRow"]
+layout_mode = 2
+custom_minimum_size = Vector2(180, 50)
+text = "Back to Map"
