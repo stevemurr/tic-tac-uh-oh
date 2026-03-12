@@ -5,6 +5,7 @@ extends RefCounted
 
 var _checker
 var _SimScript
+const CrossfireComplicationScript = preload("res://scripts/complications/crossfire.gd")
 
 
 func _init() -> void:
@@ -870,6 +871,78 @@ func test_comp_bomb_6x6() -> String:
 	return ""
 
 
+func test_comp_crossfire_3x3() -> String:
+	GameState.reset_session()
+	GameState.current_board_size = 3
+	GameState.current_win_length = 3
+	var sim = _SimScript.new(3, 3)
+	sim.add_complication(CrossfireComplicationScript.new())
+	sim.start_round()
+
+	sim.board.set_cell(1, 1)
+	sim.board.set_cell(3, 1)
+	sim.board.set_cell(5, 1)
+	sim.board.set_cell(7, 1)
+	sim.board.set_cell(0, 1)
+
+	var err = sim.place_move(4)
+	if err != "":
+		return err
+
+	for idx in [1, 3, 5, 7]:
+		if sim.board.get_cell(idx) != 0:
+			return "Crossfire should convert cell %d (got %d)" % [idx, sim.board.get_cell(idx)]
+	if sim.board.get_cell(0) != 1:
+		return "Diagonal marks should not be touched by crossfire"
+	return ""
+
+
+func test_comp_crossfire_blocked_stops_ray() -> String:
+	GameState.reset_session()
+	GameState.current_board_size = 4
+	GameState.current_win_length = 4
+	var sim = _SimScript.new(4, 4)
+	sim.add_complication(CrossfireComplicationScript.new())
+	sim.start_round()
+
+	sim.board.set_cell(1, 1)  # upward conversion
+	sim.board.set_cell(7, 1)  # convert through empty cell 6
+	sim.board.set_blocked(9, true)
+	sim.board.set_cell(13, 1)  # protected by blocked cell 9
+
+	var err = sim.place_move(5)
+	if err != "":
+		return err
+	if sim.board.get_cell(1) != 0:
+		return "Crossfire should convert upward opponent mark"
+	if sim.board.get_cell(7) != 0:
+		return "Crossfire should pass through empty cells"
+	if sim.board.get_cell(13) != 1:
+		return "Blocked cells should stop the blast ray"
+	return ""
+
+
+func test_comp_stack_crossfire_gravity() -> String:
+	GameState.reset_session()
+	GameState.current_board_size = 4
+	GameState.current_win_length = 4
+	var sim = _SimScript.new(4, 4)
+	sim.add_complication(CrossfireComplicationScript.new())
+	sim.add_complication(GravityComplication.new())
+	sim.start_round()
+
+	sim.board.set_cell(1, 1)
+
+	var err = sim.place_move(5)
+	if err != "":
+		return err
+	if sim.board.get_cell(13) != 0:
+		return "Converted mark should fall to the bottom of the column"
+	if sim.board.get_cell(9) != 0:
+		return "Placed mark should settle above the converted mark after gravity"
+	return ""
+
+
 func test_comp_stack_gravity_mirror() -> String:
 	GameState.reset_session()
 	GameState.current_board_size = 3
@@ -1305,15 +1378,8 @@ func test_edge_all_complications_simultaneously() -> String:
 	GameState.current_win_length = 4
 	var sim = _SimScript.new(4, 4)
 
-	# Add all 8 complications
-	sim.add_complication(ShrinkingBoardComplication.new())
-	sim.add_complication(GravityComplication.new())
-	sim.add_complication(MirrorMovesComplication.new())
-	sim.add_complication(TheBombComplication.new())
-	sim.add_complication(RotatingBoardComplication.new())
-	sim.add_complication(StolenTurnComplication.new())
-	sim.add_complication(TimePressureComplication.new())
-	sim.add_complication(WildcardCellComplication.new())
+	for comp in ComplicationRegistry.get_all():
+		sim.add_complication(ComplicationRegistry.create_fresh(comp.complication_id))
 	sim.start_round()
 
 	# Play a few moves and check no crash
@@ -1327,6 +1393,20 @@ func test_edge_all_complications_simultaneously() -> String:
 				break
 			return "Turn %d: %s" % [i, err]
 	return _checker.check_board_consistency(sim.board)
+
+
+func test_edge_all_complications_used_tracks_registry() -> String:
+	GameState.reset_session()
+	for comp in ComplicationRegistry.get_all():
+		GameState.add_complication(ComplicationRegistry.create_fresh(comp.complication_id))
+
+	if not GameState.all_complications_used():
+		return "Should report all complications used when registry is fully populated"
+
+	GameState.active_complications.pop_back()
+	if GameState.all_complications_used():
+		return "Should require the full registry count, not a hardcoded value"
+	return ""
 
 
 func test_edge_max_growth() -> String:

@@ -356,6 +356,13 @@ func _animate_complication_effects(cell: int, player: int, comps: Array[Complica
 						converted.append(i)
 				if converted.size() > 0:
 					await _animator.animate_infection(cell, converted, player)
+			"crossfire":
+				var crossfire_converted: Array[int] = []
+				if comp._state.get("last_source_cell", -1) == cell and comp._state.get("last_player", -1) == player:
+					for idx_variant in comp._state.get("last_converted_cells", []):
+						crossfire_converted.append(int(idx_variant))
+				if crossfire_converted.size() > 0:
+					await _animator.animate_crossfire(cell, crossfire_converted, player)
 
 	# Refresh ambient effects after complications
 	_animator.apply_ambient_effects(_board_model, GameState.active_complications)

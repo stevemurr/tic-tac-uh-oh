@@ -203,7 +203,7 @@ theme_override_styles/panel = SubResource("chip_panel")
 [node name="Label" type="Label" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent/FeatureRow/FeatureChaos"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
-text = "12 complications"
+text = "13 complications"
 horizontal_alignment = 1
 
 [node name="FeatureModes" type="PanelContainer" parent="ContentMargin/VBoxContainer/HeroPanel/HeroContent/FeatureRow"]

@@ -55,4 +55,7 @@ func get_active_complications_sorted() -> Array[ComplicationBase]:
 	return sorted
 
 func all_complications_used() -> bool:
-	return active_complications.size() >= 12
+	var total := ComplicationRegistry.get_all().size()
+	if total <= 0:
+		return false
+	return active_complications.size() >= total

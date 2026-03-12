@@ -694,6 +694,63 @@ func animate_infection(source_cell: int, target_cells: Array[int], player: int) 
 				cell.z_index = 0
 
 
+# --- Complication: Crossfire ---
+
+func animate_crossfire(source_cell: int, target_cells: Array[int], player: int) -> void:
+	if _headless or target_cells.is_empty():
+		return
+	var source := _get_cell(source_cell)
+	var blast_color := Color(1.0, 0.72, 0.18)
+	var source_glow := NeonColors.for_player_dim(player, 0.42)
+	if source:
+		CellEffects.flash_color(source, Color(source_glow.r, source_glow.g, source_glow.b, 0.32), 0.2)
+		source.mark_scale = Vector2(1.12, 1.12)
+		var source_tween := source.create_tween()
+		source_tween.tween_property(source, "mark_scale", Vector2.ONE, 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+	var max_duration := 0.0
+	for i in target_cells.size():
+		var target_idx := target_cells[i]
+		var cell := _get_cell(target_idx)
+		if not cell:
+			continue
+
+		var delay := float(i) * 0.04
+		if source:
+			_emit_energy_orb(source, cell, blast_color, 0.14, delay)
+
+		cell.z_index = 10
+		cell.mark_alpha = 0.22
+		cell.mark_progress = 0.0
+		cell.mark_scale = Vector2(1.22, 0.82)
+		var mark_layer: Control = cell.get_mark_layer()
+		if mark_layer:
+			var offset := (cell.position - source.position).normalized() * 10.0 if source else Vector2.ZERO
+			mark_layer.position = -offset
+
+		CellEffects.flash_color(cell, Color(blast_color.r, blast_color.g, blast_color.b, 0.5), 0.28)
+		_spawn_particle_at_cell(target_idx, _explosion_scene, blast_color)
+
+		var tween := cell.create_tween()
+		if delay > 0.0:
+			tween.tween_interval(delay)
+		tween.set_parallel(true)
+		tween.tween_property(cell, "mark_alpha", 1.0, 0.08).set_ease(Tween.EASE_OUT)
+		tween.tween_property(cell, "mark_progress", 1.0, 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(cell, "mark_scale", Vector2(0.9, 1.16), 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		if mark_layer:
+			tween.tween_property(mark_layer, "position", Vector2.ZERO, 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+		tween.chain().tween_property(cell, "mark_scale", Vector2.ONE, 0.14).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+		max_duration = maxf(max_duration, delay + 0.28)
+
+	if max_duration > 0.0:
+		await board.get_tree().create_timer(max_duration + 0.03).timeout
+		for target_idx in target_cells:
+			var cell := _get_cell(target_idx)
+			if cell:
+				cell.z_index = 0
+
+
 # --- Win Line Animation ---
 
 func animate_win_line(winning_cells: Array[int], player: int) -> void:

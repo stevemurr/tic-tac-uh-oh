@@ -8,7 +8,7 @@ A strategic tic-tac-toe variant built in Godot 4.6 where every draw introduces a
 2. If the game draws, a random **complication** is added and the board **grows**
 3. A **spatial mixup** shuffles marks on the expanded board
 4. Complications **stack** — the more draws, the wilder the game gets
-5. Repeat until someone wins or all 12 complications are exhausted
+5. Repeat until someone wins or all 13 complications are exhausted
 
 Win length scales with board size: `(board_size + 3) / 2`
 
@@ -20,7 +20,7 @@ Win length scales with board size: `(board_size + 3) / 2`
   - Medium: depth-3 minimax
   - Hard: full-depth minimax with complication-aware heuristics
 
-## The 12 Complications
+## The 13 Complications
 
 | Complication | Effect |
 |---|---|
@@ -36,6 +36,7 @@ Win length scales with board size: `(board_size + 3) / 2`
 | **Aftershock** | Secondary effects cascade after major moves |
 | **Chain Reaction** | Successful moves trigger additional automatic placements |
 | **Infection** | Marks spread to adjacent cells |
+| **Crossfire** | Each placement blasts across its row and column, converting opponent marks until a wall stops it |
 
 All complications are hook-based and execute in priority order. They interact — gravity fires after rotation, mirror placement happens before gravity drop, bombs can detonate on wildcard cells, etc.
 
@@ -78,7 +79,7 @@ godot --headless -s tests/mixup_explorer.gd --quick
 - **Complications** (22) — each in isolation + combined (gravity+mirror, bomb+mirror, etc.)
 - **AI** (8) — valid moves, win/block detection, performance bounds
 - **Full Game** (5) — AI vs AI, multi-round growth, 100 random games with invariant checks
-- **Edge Cases** (9) — all cells blocked, all 12 complications active, max board size
+- **Edge Cases** (9) — all cells blocked, full complication stack, max board size
 
 ## Architecture
 

@@ -1,11 +1,18 @@
 class_name ComplicationRegistryClass
 extends Node
 
+const CrossfireComplicationScript = preload("res://scripts/complications/crossfire.gd")
+
 var _all_complications: Array[ComplicationBase] = []
 
 
 func _ready() -> void:
 	_register_all()
+
+
+func _ensure_registered() -> void:
+	if _all_complications.is_empty():
+		_register_all()
 
 
 func _register_all() -> void:
@@ -22,14 +29,17 @@ func _register_all() -> void:
 		AftershockComplication.new(),
 		ChainReactionComplication.new(),
 		InfectionComplication.new(),
+		CrossfireComplicationScript.new(),
 	]
 
 
 func get_all() -> Array[ComplicationBase]:
+	_ensure_registered()
 	return _all_complications
 
 
 func get_by_id(id: String) -> ComplicationBase:
+	_ensure_registered()
 	for comp in _all_complications:
 		if comp.complication_id == id:
 			return comp
@@ -37,6 +47,7 @@ func get_by_id(id: String) -> ComplicationBase:
 
 
 func pick_random(active_ids: Array[String]) -> ComplicationBase:
+	_ensure_registered()
 	var available: Array[ComplicationBase] = []
 	for comp in _all_complications:
 		if comp.complication_id in active_ids:
@@ -72,10 +83,12 @@ func create_fresh(id: String) -> ComplicationBase:
 		"aftershock": return AftershockComplication.new()
 		"chain_reaction": return ChainReactionComplication.new()
 		"infection": return InfectionComplication.new()
+		"crossfire": return CrossfireComplicationScript.new()
 	return null
 
 
 func get_available_count(active_ids: Array[String]) -> int:
+	_ensure_registered()
 	var count := 0
 	for comp in _all_complications:
 		if comp.complication_id not in active_ids:
